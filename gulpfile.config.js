@@ -29,8 +29,7 @@ var GulpConfig = (function () {
         ];
 
         this.allJavaScript = [
-            this.source + 'app.js',
-            this.source + 'classes/**/*.js'
+            this.source + 'app.js'
         ];
 
     }

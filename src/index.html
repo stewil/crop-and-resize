@@ -9,8 +9,13 @@
     <div class="container">
         <h1>Crop Resize</h1>
         <form action="">
-            <input type="text" file=""/>    
+            <input id="file-uploader" type="file" multiple/>
         </form>
     </div>
+    <script src="./js/crop-resize.min.js"></script>
+    <script type="application/javascript">
+        var _element = document.querySelector('#file-uploader'),
+                _cropResize = new CropResize(_element, {})
+    </script>
 </body>
 </html>
