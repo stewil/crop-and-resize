@@ -16,16 +16,21 @@
         function onFileInputChange(e, scope){
 
             var files       = this.files,
-                parsedFiles = {};
+                parsedFiles = [];
 
-            for(var file in this.files){
-                parsedFiles[files[file].name] = new FileHandler(files[file]);
+            for(var file in files){
+                parsedFiles.push(new FileHandler(files[file]));
             }
         }
 
         function FileHandler(file){
 
-            if(typeof file === 'object'){
+            var fileHandler = {};
+
+            fileHandler.original    = {};
+            fileHandler.cropped     = {};
+
+            if(typeof file === 'object' && file.type.match('image.*')){
                 var reader = new FileReader();
 
                 reader.onload = onReaderLoad;
@@ -33,29 +38,49 @@
                 reader.readAsDataURL(file);
 
                 function onReaderLoad(e){
-                    var url = e.target.result;
-                    CanvasHandler(url);
+                    fileHandler.original['url'] = e.target.result;
+                    fileHandler.original['size'] = bytesToSize(file.size);
+                    bindCanvas.call(fileHandler);
                 }
             }
         }
 
-        function CanvasHandler(src){
-            var canvas = document.createElement('canvas'),
-                context = canvas.getContext('2d'),
-                parent = element.parentElement,
-                image = new Image();
+        function bindCanvas(){
+            var self = this;
 
-            image.onload = onCanvasImageLoad;
+            self['canvas'] = {};
+            self.canvas['element'] = document.createElement('canvas');
+            self.canvas['context'] = self.canvas.element.getContext('2d');
 
-            image.src = src;
+            var parent  = element.parentElement,
+                image   = new Image();
+
+            image.onload    =   onCanvasImageLoad;
+            image.src       =   self.original.url;
 
             function onCanvasImageLoad(){
-                parent.insertBefore(canvas, element);
-                context.drawImage(image, 0,0);
+                self.original['width']  =   this.width;
+                self.original['height'] =   this.height;
+
+                self.canvas['width']    =   self['canvas'].element.width;
+                self.canvas['height']   =   self['canvas'].element.height;
+
+                parent.insertBefore(self.canvas.element, element);
+
+                self.canvas.context.clearRect(0, 0, self.canvas['width'], self.canvas['height']);
+                //TODO:Compare ratio's and center
+                self.canvas.context.drawImage(image, 0,0, self.original['width'], self.original['height'], 0,0,self.canvas['width'], self.canvas['height']);
+
             }
-
-
         }
+
+        function bytesToSize(bytes) {
+            var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            if (bytes == 0) return '0 Byte';
+            var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+            return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+        }
+
     }
 
 })(document, window);
