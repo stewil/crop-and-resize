@@ -65,11 +65,42 @@
                 self.canvas['width']    =   self['canvas'].element.width;
                 self.canvas['height']   =   self['canvas'].element.height;
 
-                parent.insertBefore(self.canvas.element, element);
+                var canvasParams = measurements(self.original, self.canvas);
+
+                if(attributes['target']){
+                    attributes['target'].appendChild(self.canvas.element)
+                }else{
+                    parent.insertBefore(self.canvas.element, element);
+                }
 
                 self.canvas.context.clearRect(0, 0, self.canvas['width'], self.canvas['height']);
-                //TODO:Compare ratio's and center
-                self.canvas.context.drawImage(image, 0,0, self.original['width'], self.original['height'], 0,0,self.canvas['width'], self.canvas['height']);
+                self.canvas.context.drawImage(image,
+                    canvasParams.sx,
+                    canvasParams.sy,
+                    canvasParams.sWidth,
+                    canvasParams.sHeight,
+                    canvasParams.dx,
+                    canvasParams.dy,
+                    canvasParams.dWidth,
+                    canvasParams.dHeight
+                );
+
+                function measurements(image, canvas){
+                    var hRatio      =   canvas.width  / image.width,
+                        vRatio      =   canvas.height  / image.height,
+                        ratio       =   Math.min ( hRatio, vRatio);
+
+                    return {
+                        sx:         0,
+                        sy:         0,
+                        sWidth:     image.width,
+                        sHeight:    image.height,
+                        dx:         (canvas['width'] - image['width'] * ratio ) / 2,
+                        dy:         (canvas['height'] - image['height'] * ratio ) / 2,
+                        dWidth:     image.width * ratio,
+                        dHeight:    image.height * ratio
+                    }
+                }
 
             }
         }

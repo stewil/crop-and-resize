@@ -9,13 +9,18 @@
     <div class="container">
         <h1>Crop Resize</h1>
         <form action="">
+            <div class="embed-responsive embed-responsive-16by9" data-cropresize-target>
+
+            </div>
             <input id="file-uploader" type="file" multiple/>
         </form>
     </div>
     <script src="./js/crop-resize.min.js"></script>
     <script type="application/javascript">
         var _element    = document.querySelector('#file-uploader'),
-            _cropResize = new CropResize(_element, {});
+            _cropResize = new CropResize(_element, {
+                target:document.querySelector('[data-cropresize-target]')
+            });
 
     </script>
 </body>
