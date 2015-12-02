@@ -35,7 +35,7 @@ gulp.task('reload-TS',      ['ts'],         reloadBrowser);
 gulp.task('reload-SCSS',    ['sass'],       reloadBrowser);
 gulp.task('reload-HTML',    ['html'],       reloadBrowser);
 gulp.task('reload-IMG',     ['img'],        reloadBrowser);
-gulp.task('watch',          ['del', 'sass', 'html', 'js'], serve);
+gulp.task('watch',          ['sass', 'html', 'js'], serve);
 
 /*================================================================
     FUNCTIONS
@@ -56,10 +56,10 @@ function bowerFiles() {
 function compileJS() {
     //TODO:Check this against browserSyncStream
     return gulp.src(config.allJavaScript)
-        //.pipe(sourcemaps.init())
+        .pipe(sourcemaps.init())
         .pipe(concat(npmSettings.name + '.min.js'))
-        //.pipe(uglify())
-        //.pipe(sourcemaps.write('./'))
+        .pipe(uglify())
+        .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest(config.dist + 'js/'));
 }
 

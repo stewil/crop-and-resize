@@ -85,6 +85,24 @@
                     canvasParams.dHeight
                 );
 
+                createImgInstance();
+                cropWindow(attributes['target'] || parent);
+
+                function createImgInstance(){
+                    var croppedImageData = self.canvas.context.getImageData(0,0,500,500),
+                        buffer = document.createElement('canvas'),
+                        bufferCtx = buffer.getContext("2d"),
+                        croppedImageElement = document.createElement('img');
+
+                    buffer.width    =   500;
+                    buffer.height   =   500;
+                    bufferCtx.putImageData(croppedImageData, 0, 0);
+
+                    croppedImageElement.src = buffer.toDataURL('image/png');
+
+                    parent.appendChild(croppedImageElement);
+                }
+
                 function measurements(image, canvas){
                     var hRatio      =   canvas.width  / image.width,
                         vRatio      =   canvas.height  / image.height,
@@ -103,6 +121,34 @@
                 }
 
             }
+        }
+
+        function cropWindow(target){
+            var cropWindowElement = document.createElement('div'),
+                childNames = [
+                    'handle-top-left',
+                    'handle-top-center',
+                    'handle-top-right',
+                    'handle-right-middle',
+                    'handle-bottom-right',
+                    'handle-bottom-center',
+                    'handle-bottom-left',
+                    'handle-left-middle',
+                    'center-point'
+                ];
+
+            cropWindowElement.className = 'cr-crop-window';
+
+            for(var i = 0; i < childNames.length; i++){
+                (function(){
+                    var cropHandle = document.createElement('div');
+                    cropHandle.className = "cr-crop-handle cr-" + childNames[i];
+                    cropWindowElement.appendChild(cropHandle);
+                })();
+            }
+
+            target.appendChild(cropWindowElement);
+
         }
 
         function bytesToSize(bytes) {

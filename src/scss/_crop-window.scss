@@ -1,0 +1,93 @@
+.cr-crop-window{
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border: 2px solid white;
+    cursor: move;
+    .center-point{
+        &::before,
+        &::after{
+            content: "";
+            display: block;
+        }
+
+        &::before{
+            height: 100%;
+            width: 2px;
+            left: 50%;
+        }
+
+        &::after{
+            height: 2px;
+            width: 100%;
+            top: 50%;
+        }
+
+        width: 20px;
+        height: 20px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translateY(0) translateX(0);
+    }
+    .cr-crop-handle{
+        width: 10px;
+        height: 10px;
+        position: absolute;
+        background-color: white;
+
+        &[class*=top]{
+            top: 0;
+        }
+        &[class*=middle]{
+            top: 50%;
+        }
+        &[class*=bottom]{
+            bottom: 0;
+        }
+        &[class*=center]{
+            left: 50%;
+        }
+        &[class*=right]{
+            right: 0;
+        }
+        &[class*=left]{
+            left: 0;
+        }
+
+        &[class*=top-left]{
+            cursor: nw-resize;
+        }
+
+        &[class*=top-center]{
+            cursor: n-resize;
+        }
+
+        &[class*=top-right]{
+            cursor: ne-resize;
+        }
+
+        &[class*=right-middle]{
+            cursor: e-resize;
+        }
+
+        &[class*=bottom-right]{
+            cursor: se-resize;
+        }
+
+        &[class*=bottom-center]{
+            cursor: s-resize;
+        }
+
+        &[class*=bottom-left]{
+            cursor: sw-resize;
+        }
+
+        &[class*=left-center]{
+            cursor: w-resize;
+        }
+
+
+
+    }
+}
