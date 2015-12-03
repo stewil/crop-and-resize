@@ -4,6 +4,9 @@
     height: 200px;
     border: 2px solid white;
     cursor: move;
+    top: 50%;
+    left: 50%;
+    margin: -100px 0 0 -100px;
     .center-point{
         &::before,
         &::after{

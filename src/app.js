@@ -5,12 +5,52 @@
 
     function CropResize(element, attributes){
 
-        this.remove = remove;
+        var _cropResize         = this,
+            _mouseDownQueue     = [],
+            _mouseUpQueue       = [],
+            _mouseMoveQueue     = [],
+            _windowResizeQueue  = [];
 
-        element.addEventListener('change', onFileInputChange);
+        this.remove = remove;
+        this.images = {};
+
+        element.addEventListener('change',      onFileInputChange);
+        window.addEventListener('mousedown',    onMouseDown);
+        window.addEventListener('mouseup',      onMouseUp);
+        window.addEventListener('mousemove',    onMouseMove);
+        window.addEventListener('resize',       onWindowResize);
 
         function remove(){
-            element.removeEventListener('change', onFileInputChange);
+            element.removeEventListener('change',    onFileInputChange);
+            element.removeEventListener('mousedown', onMouseDown);
+            element.removeEventListener('mouseup',   onMouseUp);
+            element.removeEventListener('mousemove', onMouseMove);
+            element.removeEventListener('resize',    onWindowResize);
+
+            //TODO:Clear Subscription arrays
+
+        }
+
+        function onMouseDown(e){
+            onSubscription(e, _mouseDownQueue);
+        }
+
+        function onMouseUp(e){
+            onSubscription(e, _mouseUpQueue);
+        }
+
+        function onMouseMove(e){
+            onSubscription(e, _mouseMoveQueue);
+        }
+
+        function onWindowResize(e){
+            onSubscription(e, _windowResizeQueue);
+        }
+
+        function onSubscription(e, events){
+            for(var i = 0; i < events.length; i++){
+                events[i](e);
+            }
         }
 
         function onFileInputChange(e, scope){
@@ -124,7 +164,9 @@
         }
 
         function cropWindow(target){
-            var cropWindowElement = document.createElement('div'),
+            var isHeld              = false,
+                mouseStart          = {},
+                cropWindowElement   = document.createElement('div'),
                 childNames = [
                     'handle-top-left',
                     'handle-top-center',
@@ -148,6 +190,31 @@
             }
 
             target.appendChild(cropWindowElement);
+
+            _mouseMoveQueue.push(onCropMove);
+            _mouseDownQueue.push(onCropMouseDown);
+            _mouseUpQueue.push(onCropMouseUp);
+
+            function onCropMove(e){
+                if(isHeld){
+                    //TODO:Add Boundaries
+                    //TODO:Add functionality for handles clicked
+                    //TODO:Keep previous translate
+                    cropWindowElement.style.transform = "translate(" + ((e.x - mouseStart.x)) + "px, " + ((e.y - mouseStart.y)) + "px)";
+                }
+            }
+
+            function onCropMouseDown(e){
+                if(e.target.className.match("-crop-")){
+                    isHeld = true;
+                    mouseStart['x'] = e.x;
+                    mouseStart['y'] = e.y;
+                }
+            }
+
+            function onCropMouseUp(e){
+                isHeld = false;
+            }
 
         }
 
