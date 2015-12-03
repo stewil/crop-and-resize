@@ -125,23 +125,7 @@
                     canvasParams.dHeight
                 );
 
-                createImgInstance();
-                cropWindow(attributes['target'] || parent);
-
-                function createImgInstance(){
-                    var croppedImageData = self.canvas.context.getImageData(0,0,500,500),
-                        buffer = document.createElement('canvas'),
-                        bufferCtx = buffer.getContext("2d"),
-                        croppedImageElement = document.createElement('img');
-
-                    buffer.width    =   500;
-                    buffer.height   =   500;
-                    bufferCtx.putImageData(croppedImageData, 0, 0);
-
-                    croppedImageElement.src = buffer.toDataURL('image/png');
-
-                    parent.appendChild(croppedImageElement);
-                }
+                cropWindow((attributes['target'] || parent), self.canvas);
 
                 function measurements(image, canvas){
                     var hRatio      =   canvas.width  / image.width,
@@ -163,7 +147,26 @@
             }
         }
 
-        function cropWindow(target){
+        function createImgInstance(croppedImageData,croppedImageElement, target){
+            var buffer = document.createElement('canvas'),
+                bufferCtx = buffer.getContext("2d");
+
+            buffer.width    =   500;
+            buffer.height   =   500;
+            bufferCtx.putImageData(croppedImageData, 0, 0);
+
+            croppedImageElement.src = buffer.toDataURL('image/png');
+
+            if(target && !target.contains(croppedImageElement)){
+                target.appendChild(croppedImageElement);
+            }
+            return croppedImageElement;
+        }
+
+        function cropWindow(target, canvas, croppedSrc){
+
+            var croppedImage = document.createElement('img');
+
             var isHeld              = false,
                 mouseStart          = {},
                 cropWindowElement   = document.createElement('div'),
@@ -197,10 +200,28 @@
 
             function onCropMove(e){
                 if(isHeld){
+
                     //TODO:Add Boundaries
                     //TODO:Add functionality for handles clicked
                     //TODO:Keep previous translate
                     cropWindowElement.style.transform = "translate(" + ((e.x - mouseStart.x)) + "px, " + ((e.y - mouseStart.y)) + "px)";
+
+                    var canvasBoundingRect = canvas.element.getBoundingClientRect(),
+                        canvasWidth     =   canvas.element.clientWidth,
+                        canvasHeight    =   canvas.element.clientHeight;
+
+                    var heightPercent   =   cropWindowElement.clientHeight / canvasHeight,
+                        widthPercent    =   cropWindowElement.clientWidth / canvasWidth,
+                        leftPercent = (cropWindowElement.getBoundingClientRect().left - canvasBoundingRect.left) / canvasWidth,
+                        topPercent = (cropWindowElement.getBoundingClientRect().top - canvasBoundingRect.top) / canvasHeight;
+
+                    var newImgData = canvas.context.getImageData(
+                            canvas.width * leftPercent,
+                            canvas.height * topPercent,
+                            canvas.width * widthPercent,
+                            canvas.height * heightPercent);
+
+                    createImgInstance(newImgData, croppedImage, _element.parentNode);
                 }
             }
 
