@@ -6,48 +6,59 @@
     function CropResize(element, attributes){
 
         var _cropResize         = this,
-            _mouseDownQueue     = [],
-            _mouseUpQueue       = [],
-            _mouseMoveQueue     = [],
-            _windowResizeQueue  = [];
+            _eventQueues = {
+                mousedown:new EventObject(window, onMouseMove),
+                mouseup:new EventObject(window, onMouseUp),
+                mousemove:new EventObject(window, onMouseMove),
+                resize:new EventObject(window, onWindowResize),
+                change:new EventObject(element, onFileInputChange)
+            };
 
         this.remove = remove;
-        this.images = {};
+        this.images = {};       
 
-        element.addEventListener('change',      onFileInputChange);
-        window.addEventListener('mousedown',    onMouseDown);
-        window.addEventListener('mouseup',      onMouseUp);
-        window.addEventListener('mousemove',    onMouseMove);
-        window.addEventListener('resize',       onWindowResize);
+        for(var eventName in _eventQueues){
+            (function(eventName, eventObj){
+                eventObj.element.addEventListener(eventName, eventObj.fn);
+            })(eventName, _eventQueues[eventName]); 
+        }
 
         function remove(){
-            element.removeEventListener('change',    onFileInputChange);
-            element.removeEventListener('mousedown', onMouseDown);
-            element.removeEventListener('mouseup',   onMouseUp);
-            element.removeEventListener('mousemove', onMouseMove);
-            element.removeEventListener('resize',    onWindowResize);
+            for(var eventName in _eventQueues){
+                (function(eventName, eventObj){
+                    eventObj.element.removeEventListener(eventName, eventObj.fn);
+                    eventObj.events = [];
+                })(eventName, _eventQueues[eventName]); 
+            }
 
-            //TODO:Clear Subscription arrays
+        }
 
+        function EventObject(target, fn){
+            return {
+                events:[],
+                element:target,
+                fn:fn
+            }
         }
 
         function onMouseDown(e){
-            onSubscription(e, _mouseDownQueue);
+            onSubscription(e, 'mousedown');
         }
 
         function onMouseUp(e){
-            onSubscription(e, _mouseUpQueue);
+            onSubscription(e, 'mouseup');
         }
 
         function onMouseMove(e){
-            onSubscription(e, _mouseMoveQueue);
+            onSubscription(e, 'mousemove');
         }
 
         function onWindowResize(e){
-            onSubscription(e, _windowResizeQueue);
+            onSubscription(e, 'resize');
         }
 
-        function onSubscription(e, events){
+        function onSubscription(e, key){
+            var events = _eventQueues[key];
             for(var i = 0; i < events.length; i++){
                 events[i](e);
             }
@@ -194,9 +205,9 @@
 
             target.appendChild(cropWindowElement);
 
-            _mouseMoveQueue.push(onCropMove);
-            _mouseDownQueue.push(onCropMouseDown);
-            _mouseUpQueue.push(onCropMouseUp);
+            _eventQueues.mousemove.push(onCropMove);
+            _eventQueues.mousedown.push(onCropMouseDown);
+            _eventQueues.mouseup.push(onCropMouseUp);
 
             function onCropMove(e){
                 if(isHeld){
