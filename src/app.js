@@ -30,7 +30,6 @@
                     eventObj.events = [];
                 })(eventName, _eventQueues[eventName]); 
             }
-
         }
 
         function EventObject(target, fn){
@@ -65,7 +64,6 @@
         }
 
         function onFileInputChange(e, scope){
-
             var files       = this.files,
                 parsedFiles = [];
 
@@ -158,12 +156,12 @@
             }
         }
 
-        function createImgInstance(croppedImageData,croppedImageElement, target){
+        function createImgInstance(croppedImageData, croppedImageElement, target, width, height){
             var buffer = document.createElement('canvas'),
                 bufferCtx = buffer.getContext("2d");
 
-            buffer.width    =   500;
-            buffer.height   =   500;
+            buffer.width    =   width;
+            buffer.height   =   height;
             bufferCtx.putImageData(croppedImageData, 0, 0);
 
             croppedImageElement.src = buffer.toDataURL('image/png');
@@ -226,13 +224,16 @@
                         leftPercent = (cropWindowElement.getBoundingClientRect().left - canvasBoundingRect.left) / canvasWidth,
                         topPercent = (cropWindowElement.getBoundingClientRect().top - canvasBoundingRect.top) / canvasHeight;
 
+                    var newWidth = canvas.width * widthPercent,
+                        newHeight = canvas.height * heightPercent;
+
                     var newImgData = canvas.context.getImageData(
                             canvas.width * leftPercent,
                             canvas.height * topPercent,
-                            canvas.width * widthPercent,
-                            canvas.height * heightPercent);
+                            newWidth,
+                            newHeight);
 
-                    createImgInstance(newImgData, croppedImage, _element.parentNode);
+                    createImgInstance(newImgData, croppedImage, _element.parentNode, newWidth, newHeight);
                 }
             }
 
