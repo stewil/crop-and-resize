@@ -8,8 +8,11 @@ var gulp            =   require('gulp'),
     rename          =   require('gulp-rename'),
     concat          =   require('gulp-concat'),
     uglify          =   require('gulp-uglify'),
+    bump            =   require('gulp-bump'),
+    browserify      =   require('browserify'),
+    source          =   require('vinyl-source-stream'),
+    streamify       =   require('gulp-streamify'),
     del             =   require('del'),
-    rename          =   require('gulp-rename'),
     browserSync     =   require('browser-sync').create(),
     Config          =   require('./gulpfile.config'),
     vendor          =   require('bower-files')({});
@@ -26,8 +29,6 @@ gulp.task("sass",           compileSASS);
 gulp.task("js",             compileJS);
 gulp.task("views",          copyHtml);
 gulp.task("index",          copyIndex);
-gulp.task("img",            copyImages);
-gulp.task("fonts",          copyFonts);
 gulp.task("html",           ['index', 'views']);
 gulp.task('bower-files',    bowerFiles);
 gulp.task('reload-JS',      ['js'],         reloadBrowser);
@@ -54,12 +55,11 @@ function bowerFiles() {
 }
 
 function compileJS() {
-    //TODO:Check this against browserSyncStream
-    return gulp.src(config.allJavaScript)
-        .pipe(sourcemaps.init())
-        .pipe(concat(npmSettings.name + '.min.js'))
-        .pipe(uglify())
-        .pipe(sourcemaps.write('./'))
+    var jsBundle = browserify(config.application).bundle();
+
+    return jsBundle
+        .pipe(source(config.application))
+        .pipe(rename(npmSettings.name + '.js'))
         .pipe(gulp.dest(config.dist + 'js/'));
 }
 
@@ -91,11 +91,6 @@ function copyIndex(){
         .pipe(gulp.dest(config.dist));
 }
 
-function copyFonts(){
-    return gulp.src(config.fonts)
-        .pipe(gulp.dest(config.dist + '/fonts'));
-}
-
 function serve() {
 
     if (browserSync != null) {
@@ -108,21 +103,13 @@ function serve() {
     gulp.watch(config.scss,             ['reload-SCSS']);
     gulp.watch(config.html,             ['reload-HTML']);
     gulp.watch(config.index,            ['reload-HTML']);
-    gulp.watch(config.allJavaScript,    ['reload-JS']);
+    gulp.watch(config.javascriptModules,['reload-JS']);
 }
 
 function reloadBrowser(){
     if (browserSync != null) {
         browserSync.reload();
     }
-}
-
-function copyImages(){
-    return gulp.src(config.images)
-        .pipe(rename({
-            dirname:"img/"
-        }))
-        .pipe(gulp.dest(config.dist));
 }
 
 function clearDistFiles(){

@@ -28,8 +28,11 @@ var GulpConfig = (function () {
             this.source + "index.html"
         ];
 
-        this.allJavaScript = [
-            this.source + 'app.js'
+        this.application = this.source + 'app.js';
+
+        this.javascriptModules = [
+            this.source + 'app.js',
+            this.source + 'classes/*.js'
         ];
 
     }
