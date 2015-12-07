@@ -1,7 +1,7 @@
 (function(){
-    var CropWindow = module.exports = CropWindowDependencies;
+    module.exports = CropWindowDependencies;
 
-    function CropWindowDependencies(_eventQueues, createImgInstance){
+    function CropWindowDependencies(_element, _eventQueues, createImgInstance){
         return function(target, canvas, croppedSrc){
 
             var croppedImage = document.createElement('img');
@@ -33,9 +33,9 @@
 
             target.appendChild(cropWindowElement);
 
-            _eventQueues.mousemove.events.push(onCropMove);
-            _eventQueues.mousedown.events.push(onCropMouseDown);
-            _eventQueues.mouseup.events.push(onCropMouseUp);
+            _eventQueues.subscribe('mousemove', window, onCropMove);
+            _eventQueues.subscribe('mousedown', window, onCropMouseDown);
+            _eventQueues.subscribe('mouseup', window, onCropMouseUp);
 
             function onCropMove(e){
                 if(isHeld){

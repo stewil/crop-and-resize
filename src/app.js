@@ -4,66 +4,25 @@
 
     function CropResize(element, attributes){
 
-        var _cropResize         = this,
-            _eventQueues = {
-                mousedown:new EventObject(window, onMouseDown),
-                mouseup:new EventObject(window, onMouseUp),
-                mousemove:new EventObject(window, onMouseMove),
-                resize:new EventObject(window, onWindowResize),
-                change:new EventObject(element, onFileInputChange)
-            };
+        var _cropResize         = this;
 
         this.remove = remove;
         this.images = {};
 
         //CLASSES
-        var cropWindow = require('./classes/crop-window.js')(_eventQueues, createImgInstance);
+        var _eventQueues = require('./classes/events-queue.js')();
+        var cropWindow = require('./classes/crop-window.js')(element, _eventQueues, createImgInstance);
 
-        for(var eventName in _eventQueues){
-            (function(eventName, eventObj){
-                eventObj.element.addEventListener(eventName, eventObj.fn);
-            })(eventName, _eventQueues[eventName]); 
+        init();
+
+        function init(){
+            _eventQueues.subscribe('change', element, onFileInputChange);
         }
 
         function remove(){
-            for(var eventName in _eventQueues){
-                (function(eventName, eventObj){
-                    eventObj.element.removeEventListener(eventName, eventObj.fn);
-                    eventObj.events = [];
-                })(eventName, _eventQueues[eventName]); 
-            }
+            _eventQueues.removeAll();
         }
 
-        function EventObject(target, fn){
-            return {
-                events:[],
-                element:target,
-                fn:fn
-            }
-        }
-
-        function onMouseDown(e){
-            onSubscription(e, 'mousedown');
-        }
-
-        function onMouseUp(e){
-            onSubscription(e, 'mouseup');
-        }
-
-        function onMouseMove(e){
-            onSubscription(e, 'mousemove');
-        }
-
-        function onWindowResize(e){
-            onSubscription(e, 'resize');
-        }
-
-        function onSubscription(e, key){
-            var events = _eventQueues[key].events;
-            for(var i = 0; i < events.length; i++){
-                events[i](e);
-            }
-        }
 
         function onFileInputChange(e, scope){
             var files       = this.files,
