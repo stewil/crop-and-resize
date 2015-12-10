@@ -4,12 +4,12 @@
     function CropWindowDependencies(_element, _eventQueues, createImgInstance){
         return function(target, canvas, croppedSrc){
 
-            var croppedImage = document.createElement('img');
-
-            var isHeld              = false,
-                mouseStart          = {},
-                cropWindowElement   = document.createElement('div'),
-                childNames = [
+            var _translate          =   {},
+                croppedImage        =   document.createElement('img'),
+                isHeld              =   false,
+                mouseStart          =   {},
+                cropWindowElement   =   document.createElement('div'),
+                childNames          =   [
                     'handle-top-left',
                     'handle-top-center',
                     'handle-top-right',
@@ -20,6 +20,10 @@
                     'handle-left-middle',
                     'center-point'
                 ];
+
+            _eventQueues.subscribe('mousemove', window, onCropMove);
+            _eventQueues.subscribe('mousedown', window, onCropMouseDown);
+            _eventQueues.subscribe('mouseup', window, onCropMouseUp);
 
             cropWindowElement.className = 'cr-crop-window';
 
@@ -33,9 +37,6 @@
 
             target.appendChild(cropWindowElement);
 
-            _eventQueues.subscribe('mousemove', window, onCropMove);
-            _eventQueues.subscribe('mousedown', window, onCropMouseDown);
-            _eventQueues.subscribe('mouseup', window, onCropMouseUp);
 
             function onCropMove(e){
                 if(isHeld){
@@ -43,7 +44,7 @@
                     //TODO:Add Boundaries
                     //TODO:Add functionality for handles clicked
                     //TODO:Keep previous translate
-                    cropWindowElement.style.transform = "translate(" + ((e.x - mouseStart.x)) + "px, " + ((e.y - mouseStart.y)) + "px)";
+                    cropWindowElement.style.transform = "translate(" + (_translate.x + Number(e.x - mouseStart.x)) + "px, " + (_translate.y + Number(e.y - mouseStart.y)) + "px)";
 
                     var canvasBoundingRect = canvas.element.getBoundingClientRect(),
                         canvasWidth     =   canvas.element.clientWidth,
@@ -69,9 +70,14 @@
 
             function onCropMouseDown(e){
                 if(e.target.className.match("-crop-")){
-                    isHeld = true;
-                    mouseStart['x'] = e.x;
-                    mouseStart['y'] = e.y;
+
+                    var transform = (cropWindowElement.style['transform' || 'webkitTransform' || 'mozTransform'] || "").match(/(\d+)|(-\d+)/g) || [];
+
+                    isHeld              =   true;
+                    mouseStart['x']     =   e.x;
+                    mouseStart['y']     =   e.y;
+                    _translate['x']     =   Number(transform[0] || 0);
+                    _translate['y']     =   Number(transform[1] || 0);
                 }
             }
 

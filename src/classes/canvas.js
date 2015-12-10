@@ -5,12 +5,12 @@
         return function bindCanvas() {
             var self = this;
 
-            self['canvas'] = {};
-            self.canvas['element'] = document.createElement('canvas');
-            self.canvas['context'] = self.canvas.element.getContext('2d');
+            self['canvas']          =   {};
+            self.canvas['element']  =   document.createElement('canvas');
+            self.canvas['context']  =   self.canvas.element.getContext('2d');
 
-            var parent  = _element.parentElement,
-                image   = new Image();
+            var parent      =   _element.parentElement,
+                image       =   new Image();
 
             image.onload    =   onCanvasImageLoad;
             image.src       =   self.original.url;
@@ -27,7 +27,7 @@
                 if(attributes['target']){
                     attributes['target'].appendChild(self.canvas.element)
                 }else{
-                    parent.insertBefore(self.canvas.element, element);
+                    parent.insertBefore(self.canvas.element, _element);
                 }
 
                 self.canvas.context.clearRect(0, 0, self.canvas['width'], self.canvas['height']);
