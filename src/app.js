@@ -12,7 +12,7 @@
         //CLASSES
         var _eventQueues = require('./classes/events-queue.js')();
         var cropWindow = require('./classes/crop-window.js')(element, _eventQueues, createImgInstance);
-        var bindCanvas = require('./classes/canvas.js')(element, attributes, cropWindow);
+        var bindCanvas = require('./classes/canvas.js')(element, _eventQueues, attributes, cropWindow);
 
         init();
 

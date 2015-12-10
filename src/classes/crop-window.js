@@ -44,11 +44,34 @@
                     //TODO:Add Boundaries
                     //TODO:Add functionality for handles clicked
                     //TODO:Keep previous translate
-                    cropWindowElement.style.transform = "translate(" + (_translate.x + Number(e.x - mouseStart.x)) + "px, " + (_translate.y + Number(e.y - mouseStart.y)) + "px)";
+                    var newX = (_translate.x + Number(e.x - mouseStart.x)),
+                        newY = (_translate.y + Number(e.y - mouseStart.y));
 
                     var canvasBoundingRect = canvas.element.getBoundingClientRect(),
                         canvasWidth     =   canvas.element.clientWidth,
                         canvasHeight    =   canvas.element.clientHeight;
+
+                    var maxLeft     = cropWindowElement.offsetLeft*-1,
+                        maxTop      = cropWindowElement.offsetTop * -1,
+                        maxRight    = cropWindowElement.offsetLeft,
+                        maxBottom   = cropWindowElement.offsetTop;
+
+                    if(newX < maxLeft){
+                        newX = maxLeft;
+                    }
+                    if(newX > maxRight){
+                        newX = maxRight;
+                    }
+
+                    if(newY < maxTop){
+                        newY = maxTop;
+                    }
+
+                    if(newY > maxBottom){
+                        newY = maxBottom;
+                    }
+
+                    cropWindowElement.style.transform = "translate(" + newX + "px, " + newY + "px)";
 
                     var heightPercent   =   cropWindowElement.clientHeight / canvasHeight,
                         widthPercent    =   cropWindowElement.clientWidth / canvasWidth,

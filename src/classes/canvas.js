@@ -1,12 +1,13 @@
 (function() {
     module.exports = CanvasDependencies;
 
-    function CanvasDependencies(_element, attributes, cropWindow) {
+    function CanvasDependencies(_element, _eventQueues, attributes, cropWindow) {
         return function bindCanvas() {
-            var self = this;
+            var self = this,
+                canvas = document.createElement('canvas');
 
             self['canvas']          =   {};
-            self.canvas['element']  =   document.createElement('canvas');
+            self.canvas['element']  =   canvas;
             self.canvas['context']  =   self.canvas.element.getContext('2d');
 
             var parent      =   _element.parentElement,
@@ -14,6 +15,18 @@
 
             image.onload    =   onCanvasImageLoad;
             image.src       =   self.original.url;
+
+            _eventQueues.subscribe('resize', window, cacheCanvasDimensions);
+
+            function cacheCanvasDimensions(e){
+                var canvasBounding = canvas.getBoundingClientRect();
+
+                self.canvas['top']      = canvasBounding.top;
+                self.canvas['left']     = canvasBounding.left;
+                self.canvas['left']     = canvasBounding.left;
+                self.canvas['cWidth']   = canvas.clientWidth;
+                self.canvas['cHeight']   = canvas.clientHeight;
+            }
 
             function onCanvasImageLoad(){
                 self.original['width']  =   this.width;
@@ -43,6 +56,7 @@
                 );
 
                 cropWindow((attributes['target'] || parent), self.canvas);
+                cacheCanvasDimensions();
 
                 function measurements(image, canvas){
                     var hRatio      =   canvas.width  / image.width,
