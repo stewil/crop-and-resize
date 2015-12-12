@@ -5,38 +5,54 @@
         return function(target, canvas, croppedSrc){
 
             var _translate          =   {},
+                _focusElement,
                 croppedImage        =   document.createElement('img'),
                 isHeld              =   false,
                 mouseStart          =   {},
                 cropWindowElement   =   document.createElement('div'),
-                childNames          =   [
-                    'handle-top-left',
-                    'handle-top-center',
-                    'handle-top-right',
-                    'handle-right-middle',
-                    'handle-bottom-right',
-                    'handle-bottom-center',
-                    'handle-bottom-left',
-                    'handle-left-middle',
-                    'center-point'
-                ];
+                _handles            =   Handles();
 
             _eventQueues.subscribe('mousemove', window, onCropMove);
             _eventQueues.subscribe('mousedown', window, onCropMouseDown);
-            _eventQueues.subscribe('mouseup', window, onCropMouseUp);
+            _eventQueues.subscribe('mouseup',   window, onCropMouseUp);
 
-            cropWindowElement.className = 'cr-crop-window';
+            createCropWindow();
 
-            for(var i = 0; i < childNames.length; i++){
-                (function(){
-                    var cropHandle = document.createElement('div');
-                    cropHandle.className = "cr-crop-handle cr-" + childNames[i];
-                    cropWindowElement.appendChild(cropHandle);
-                })();
+            function createCropWindow(){
+                cropWindowElement.className = 'cr-crop-window';
+
+                for(var i = 0; i < _handles.length; i++){
+                    (function(){
+                        var cropHandle = document.createElement('div');
+                        cropHandle.className = "cr-crop-handle cr-" + _handles[i].class;
+                        _handles[i].element = cropHandle;
+                        cropWindowElement.appendChild(cropHandle);
+                    })();
+                }
+
+                target.appendChild(cropWindowElement);
             }
 
-            target.appendChild(cropWindowElement);
+            function Handles(){
 
+                return [
+                    handleObject('handle-top-left'),
+                    handleObject('handle-top-center'),
+                    handleObject('handle-top-right'),
+                    handleObject('handle-right-middle'),
+                    handleObject('handle-bottom-right'),
+                    handleObject('handle-bottom-center'),
+                    handleObject('handle-bottom-left'),
+                    handleObject('handle-left-middle'),
+                    handleObject('center-point')
+                ];
+
+                function handleObject(className){
+                    return {
+                        "class":className
+                    }
+                }
+            }
 
             function onCropMove(e){
                 if(isHeld){
@@ -71,7 +87,11 @@
                         newY = maxBottom;
                     }
 
-                    cropWindowElement.style.transform = "translate(" + newX + "px, " + newY + "px)";
+                    if(_focusElement === cropWindowElement){
+                        cropWindowElement.style.transform = "translate(" + newX + "px, " + newY + "px)";
+                    }else{
+
+                    }
 
                     var heightPercent   =   cropWindowElement.clientHeight / canvasHeight,
                         widthPercent    =   cropWindowElement.clientWidth / canvasWidth,
@@ -101,11 +121,28 @@
                     mouseStart['y']     =   e.y;
                     _translate['x']     =   Number(transform[0] || 0);
                     _translate['y']     =   Number(transform[1] || 0);
+
+                    _focusElement = e.target === cropWindowElement ? '' : '';
+
+                    if(e.target === cropWindowElement){
+                        _focusElement = cropWindowElement;
+                    }else{
+                        for(var i = 0; i < _handles.length; i++){
+                            if(e.target === _handles[i].element){
+
+                                _focusElement = _handles[i].element;
+                                console.log("YOu clicked a handle!");
+                                console.log(_focusElement);
+                                break;
+                            }
+                        }
+                    }
                 }
             }
 
             function onCropMouseUp(e){
                 isHeld = false;
+                _focusElement = null;
             }
 
         }
