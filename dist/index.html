@@ -1,0 +1,27 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Image Resize & Crop</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="css/main.css"/>
+</head>
+<body>
+    <div class="container">
+        <h1>Crop Resize</h1>
+        <form action="">
+            <div class="embed-responsive embed-responsive-16by9" data-cropresize-target>
+
+            </div>
+            <input id="file-uploader" type="file" multiple/>
+        </form>
+    </div>
+    <script src="./js/crop-resize.js"></script>
+    <script type="application/javascript">
+        var _element    = document.querySelector('#file-uploader'),
+            _cropResize = new CropResize(_element, {
+                target:document.querySelector('[data-cropresize-target]')
+            });
+
+    </script>
+</body>
+</html>

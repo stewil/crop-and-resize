@@ -1,0 +1,72 @@
+canvas {
+  height: 100%;
+  width: 100%;
+  display: block;
+  background-color: black;
+  position: absolute; }
+
+.cr-crop-window {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border: 2px solid white;
+  cursor: move;
+  top: 50%;
+  left: 50%;
+  margin: -100px 0 0 -100px; }
+  .cr-crop-window .cr-center-point {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translateY(0) translateX(0);
+        -ms-transform: translateY(0) translateX(0);
+            transform: translateY(0) translateX(0); }
+    .cr-crop-window .cr-center-point::before, .cr-crop-window .cr-center-point::after {
+      content: "";
+      display: block; }
+    .cr-crop-window .cr-center-point::before {
+      height: 100%;
+      width: 2px;
+      left: 50%; }
+    .cr-crop-window .cr-center-point::after {
+      height: 2px;
+      width: 100%;
+      top: 50%; }
+  .cr-crop-window .cr-crop-handle {
+    width: 10px;
+    height: 10px;
+    position: absolute;
+    background-color: white; }
+    .cr-crop-window .cr-crop-handle[class*=top] {
+      top: 0; }
+    .cr-crop-window .cr-crop-handle[class*=middle] {
+      top: 50%; }
+    .cr-crop-window .cr-crop-handle[class*=bottom] {
+      bottom: 0; }
+    .cr-crop-window .cr-crop-handle[class*=center] {
+      left: 50%; }
+    .cr-crop-window .cr-crop-handle[class*=right] {
+      right: 0; }
+    .cr-crop-window .cr-crop-handle[class*=left] {
+      left: 0; }
+    .cr-crop-window .cr-crop-handle[class*=top-left] {
+      cursor: nw-resize; }
+    .cr-crop-window .cr-crop-handle[class*=top-center] {
+      cursor: n-resize; }
+    .cr-crop-window .cr-crop-handle[class*=top-right] {
+      cursor: ne-resize; }
+    .cr-crop-window .cr-crop-handle[class*=right-middle] {
+      cursor: e-resize; }
+    .cr-crop-window .cr-crop-handle[class*=bottom-right] {
+      cursor: se-resize; }
+    .cr-crop-window .cr-crop-handle[class*=bottom-center] {
+      cursor: s-resize; }
+    .cr-crop-window .cr-crop-handle[class*=bottom-left] {
+      cursor: sw-resize; }
+    .cr-crop-window .cr-crop-handle[class*=left-center] {
+      cursor: w-resize; }
+
+
+/*# sourceMappingURL=main.css.map */
