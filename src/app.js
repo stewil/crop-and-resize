@@ -10,27 +10,27 @@
         this.images = {};
 
         //CLASSES
-        var _eventQueues = require('./classes/events-queue.js')();
-        var cropWindow = require('./classes/crop-window.js')(element, _eventQueues, createImgInstance);
-        var bindCanvas = require('./classes/canvas.js')(element, _eventQueues, attributes, cropWindow);
+        var _eventQueues    = require('./classes/events-queue.js')(),
+            dragDrop        = require('./classes/drag-drop.js')(_eventQueues, attributes['dragDropTarget']),
+            cropWindow      = require('./classes/crop-window.js')(element, _eventQueues, createImgInstance),
+            bindCanvas      = require('./classes/canvas.js')(element, _eventQueues, attributes, cropWindow);
 
         init();
 
         function init(){
             _eventQueues.subscribe('change', element, onFileInputChange);
+            dragDrop.onDropComplete(FileHandler);
         }
 
         function remove(){
             _eventQueues.removeAll();
         }
 
-
         function onFileInputChange(e, scope){
-            var files       = this.files,
-                parsedFiles = [];
+            var files       = this.files;
 
             for(var file in files){
-                parsedFiles.push(new FileHandler(files[file]));
+                return FileHandler(files[file]);
             }
         }
 

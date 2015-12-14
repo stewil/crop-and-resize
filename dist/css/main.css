@@ -68,5 +68,9 @@ canvas {
     .cr-crop-window .cr-crop-handle[class*=left-center] {
       cursor: w-resize; }
 
+[data-drag-drop-target] {
+  border: 1px dashed darkgrey;
+  background-color: lightgrey; }
+
 
 /*# sourceMappingURL=main.css.map */

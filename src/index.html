@@ -9,7 +9,7 @@
     <div class="container">
         <h1>Crop Resize</h1>
         <form action="">
-            <div class="embed-responsive embed-responsive-16by9" data-cropresize-target>
+            <div class="embed-responsive embed-responsive-16by9" data-cropresize-target data-drag-drop-target>
 
             </div>
             <input id="file-uploader" type="file" multiple/>
@@ -19,7 +19,8 @@
     <script type="application/javascript">
         var _element    = document.querySelector('#file-uploader'),
             _cropResize = new CropResize(_element, {
-                target:document.querySelector('[data-cropresize-target]')
+                target:document.querySelector('[data-cropresize-target]'),
+                dragDropTarget:document.querySelector('[data-drag-drop-target]')
             });
 
     </script>

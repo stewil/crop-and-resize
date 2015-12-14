@@ -11,27 +11,27 @@
         this.images = {};
 
         //CLASSES
-        var _eventQueues = require('./classes/events-queue.js')();
-        var cropWindow = require('./classes/crop-window.js')(element, _eventQueues, createImgInstance);
-        var bindCanvas = require('./classes/canvas.js')(element, _eventQueues, attributes, cropWindow);
+        var _eventQueues    = require('./classes/events-queue.js')(),
+            dragDrop        = require('./classes/drag-drop.js')(_eventQueues, attributes['dragDropTarget']),
+            cropWindow      = require('./classes/crop-window.js')(element, _eventQueues, createImgInstance),
+            bindCanvas      = require('./classes/canvas.js')(element, _eventQueues, attributes, cropWindow);
 
         init();
 
         function init(){
             _eventQueues.subscribe('change', element, onFileInputChange);
+            dragDrop.onDropComplete(FileHandler);
         }
 
         function remove(){
             _eventQueues.removeAll();
         }
 
-
         function onFileInputChange(e, scope){
-            var files       = this.files,
-                parsedFiles = [];
+            var files       = this.files;
 
             for(var file in files){
-                parsedFiles.push(new FileHandler(files[file]));
+                return FileHandler(files[file]);
             }
         }
 
@@ -87,7 +87,7 @@
     }
 
 })(document, window);
-},{"./classes/canvas.js":2,"./classes/crop-window.js":3,"./classes/events-queue.js":4}],2:[function(require,module,exports){
+},{"./classes/canvas.js":2,"./classes/crop-window.js":3,"./classes/drag-drop.js":4,"./classes/events-queue.js":5}],2:[function(require,module,exports){
 (function() {
     module.exports = CanvasDependencies;
 
@@ -347,6 +347,46 @@
 })();
 },{}],4:[function(require,module,exports){
 (function(){
+    module.exports = DragDropDependencies;
+
+    function DragDropDependencies(_eventQueues, dragDropTarget){
+
+        var _subscribers = [];
+
+        _eventQueues.subscribe('drop',      dragDropTarget, onDrop);
+        _eventQueues.subscribe('dragover',  dragDropTarget, onDragOver);
+
+        return {
+            onDropComplete:onDropComplete
+        };
+
+        function onDropComplete(fn){
+            _subscribers.push(fn);
+        }
+
+        function onDrop(evt){
+            evt.stopPropagation();
+            evt.preventDefault();
+
+            var data             = evt.dataTransfer.files,
+                totalSubscribers = _subscribers.length;
+
+            while(totalSubscribers--){
+                _subscribers[totalSubscribers](data[0]);
+            }
+
+        }
+
+        function onDragOver(evt) {
+            evt.stopPropagation();
+            evt.preventDefault();
+            evt.dataTransfer.dropEffect = 'copy';
+        }
+
+    }
+})();
+},{}],5:[function(require,module,exports){
+(function(){
     module.exports = EventsQueueDependencies;
 
     function EventsQueueDependencies(){
@@ -364,7 +404,7 @@
             var knownQueueItem;
 
             for(var i = 0; i < _queue.length; i++){
-                if(_queue[i].event === event && _queue[i].element === element){
+                if(_queue[i].eventName === eventName && _queue[i].element === element){
                     _queue[i].events.push(subscriberFn);
                     knownQueueItem = _queue[i];
                     break;
@@ -376,9 +416,9 @@
         function EventObject(eventName, element, subscriberFn){
 
             var queueObject = {
-                events:[subscriberFn],
-                element:element,
-                fn:subscriberFn,
+                events      : [subscriberFn],
+                element     : element,
+                eventName   : eventName,
                 publicEvents:{
                     unSubscribe:unSubscribe
                 }
