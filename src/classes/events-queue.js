@@ -16,7 +16,7 @@
             var knownQueueItem;
 
             for(var i = 0; i < _queue.length; i++){
-                if(_queue[i].event === event && _queue[i].element === element){
+                if(_queue[i].eventName === eventName && _queue[i].element === element){
                     _queue[i].events.push(subscriberFn);
                     knownQueueItem = _queue[i];
                     break;
@@ -28,9 +28,9 @@
         function EventObject(eventName, element, subscriberFn){
 
             var queueObject = {
-                events:[subscriberFn],
-                element:element,
-                fn:subscriberFn,
+                events      : [subscriberFn],
+                element     : element,
+                eventName   : eventName,
                 publicEvents:{
                     unSubscribe:unSubscribe
                 }
