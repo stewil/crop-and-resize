@@ -4,8 +4,6 @@
 
     function CropResize(element, attributes){
 
-        var _cropResize         = this;
-
         this.remove = remove;
         this.images = {};
 
@@ -13,50 +11,31 @@
         var _eventQueues    = require('./classes/events-queue.js')(),
             dragDrop        = require('./classes/drag-drop.js')(_eventQueues, attributes['dragDropTarget']),
             cropWindow      = require('./classes/crop-window.js')(element, _eventQueues, createImgInstance),
-            bindCanvas      = require('./classes/canvas.js')(element, _eventQueues, attributes, cropWindow);
+            bindCanvas      = require('./classes/canvas.js')(element, _eventQueues, attributes, cropWindow),
+            fileInput       = require('./classes/file-input.js')(_eventQueues, element);
 
         init();
 
         function init(){
-            _eventQueues.subscribe('change', element, onFileInputChange);
-            dragDrop.onDropComplete(FileHandler);
+            fileInput.onFileChange(onFileProcessed);
+            dragDrop.onFileChange(onFileProcessed);
         }
 
-        function remove(){
-            _eventQueues.removeAll();
-        }
-
-        function onFileInputChange(e, scope){
-            var files       = this.files;
-
-            for(var file in files){
-                return FileHandler(files[file]);
-            }
-        }
-
-        function FileHandler(file){
-
+        function onFileProcessed(file){
             var fileHandler = {};
 
             fileHandler.original    = {};
             fileHandler.cropped     = {};
 
-            if(typeof file === 'object' && file.type.match('image.*')){
-                var reader = new FileReader();
+            fileHandler.original['url'] = file;
+            fileHandler.original['size'] = bytesToSize(file.size);
 
-                reader.onload = onReaderLoad;
-
-                reader.readAsDataURL(file);
-
-                function onReaderLoad(e){
-                    fileHandler.original['url'] = e.target.result;
-                    fileHandler.original['size'] = bytesToSize(file.size);
-                    bindCanvas.call(fileHandler);
-                }
-            }
+            bindCanvas.call(fileHandler);
         }
 
-
+        function remove(){
+            _eventQueues.removeAll();
+        }
 
         function createImgInstance(croppedImageData, croppedImageElement, target, width, height){
             var buffer = document.createElement('canvas'),
@@ -73,8 +52,6 @@
             }
             return croppedImageElement;
         }
-
-
 
         function bytesToSize(bytes) {
             var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];

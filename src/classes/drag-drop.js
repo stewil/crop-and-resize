@@ -9,10 +9,10 @@
         _eventQueues.subscribe('dragover',  dragDropTarget, onDragOver);
 
         return {
-            onDropComplete:onDropComplete
+            onFileChange:onFileChange
         };
 
-        function onDropComplete(fn){
+        function onFileChange(fn){
             _subscribers.push(fn);
         }
 
@@ -24,7 +24,9 @@
                 totalSubscribers = _subscribers.length;
 
             while(totalSubscribers--){
-                _subscribers[totalSubscribers](data[0]);
+                if(_subscribers[totalSubscribers] && typeof _subscribers[totalSubscribers] === 'function'){
+                    _subscribers[totalSubscribers](data[totalSubscribers]);
+                }
             }
 
         }

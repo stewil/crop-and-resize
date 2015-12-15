@@ -5,8 +5,6 @@
 
     function CropResize(element, attributes){
 
-        var _cropResize         = this;
-
         this.remove = remove;
         this.images = {};
 
@@ -14,50 +12,31 @@
         var _eventQueues    = require('./classes/events-queue.js')(),
             dragDrop        = require('./classes/drag-drop.js')(_eventQueues, attributes['dragDropTarget']),
             cropWindow      = require('./classes/crop-window.js')(element, _eventQueues, createImgInstance),
-            bindCanvas      = require('./classes/canvas.js')(element, _eventQueues, attributes, cropWindow);
+            bindCanvas      = require('./classes/canvas.js')(element, _eventQueues, attributes, cropWindow),
+            fileInput       = require('./classes/file-input.js')(_eventQueues, element);
 
         init();
 
         function init(){
-            _eventQueues.subscribe('change', element, onFileInputChange);
-            dragDrop.onDropComplete(FileHandler);
+            fileInput.onFileChange(onFileProcessed);
+            dragDrop.onFileChange(onFileProcessed);
         }
 
-        function remove(){
-            _eventQueues.removeAll();
-        }
-
-        function onFileInputChange(e, scope){
-            var files       = this.files;
-
-            for(var file in files){
-                return FileHandler(files[file]);
-            }
-        }
-
-        function FileHandler(file){
-
+        function onFileProcessed(file){
             var fileHandler = {};
 
             fileHandler.original    = {};
             fileHandler.cropped     = {};
 
-            if(typeof file === 'object' && file.type.match('image.*')){
-                var reader = new FileReader();
+            fileHandler.original['url'] = file;
+            fileHandler.original['size'] = bytesToSize(file.size);
 
-                reader.onload = onReaderLoad;
-
-                reader.readAsDataURL(file);
-
-                function onReaderLoad(e){
-                    fileHandler.original['url'] = e.target.result;
-                    fileHandler.original['size'] = bytesToSize(file.size);
-                    bindCanvas.call(fileHandler);
-                }
-            }
+            bindCanvas.call(fileHandler);
         }
 
-
+        function remove(){
+            _eventQueues.removeAll();
+        }
 
         function createImgInstance(croppedImageData, croppedImageElement, target, width, height){
             var buffer = document.createElement('canvas'),
@@ -75,8 +54,6 @@
             return croppedImageElement;
         }
 
-
-
         function bytesToSize(bytes) {
             var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
             if (bytes == 0) return '0 Byte';
@@ -87,7 +64,7 @@
     }
 
 })(document, window);
-},{"./classes/canvas.js":2,"./classes/crop-window.js":3,"./classes/drag-drop.js":4,"./classes/events-queue.js":5}],2:[function(require,module,exports){
+},{"./classes/canvas.js":2,"./classes/crop-window.js":3,"./classes/drag-drop.js":4,"./classes/events-queue.js":5,"./classes/file-input.js":6}],2:[function(require,module,exports){
 (function() {
     module.exports = CanvasDependencies;
 
@@ -357,10 +334,10 @@
         _eventQueues.subscribe('dragover',  dragDropTarget, onDragOver);
 
         return {
-            onDropComplete:onDropComplete
+            onFileChange:onFileChange
         };
 
-        function onDropComplete(fn){
+        function onFileChange(fn){
             _subscribers.push(fn);
         }
 
@@ -372,7 +349,9 @@
                 totalSubscribers = _subscribers.length;
 
             while(totalSubscribers--){
-                _subscribers[totalSubscribers](data[0]);
+                if(_subscribers[totalSubscribers] && typeof _subscribers[totalSubscribers] === 'function'){
+                    _subscribers[totalSubscribers](data[totalSubscribers]);
+                }
             }
 
         }
@@ -459,6 +438,55 @@
             }
         }
 
+    }
+})();
+},{}],6:[function(require,module,exports){
+(function(){
+    "use strict";
+
+    module.exports = FileInput;
+
+    function FileInput(_eventQueues, inputElement){
+
+        var _subscribers = [];
+
+        _eventQueues.subscribe('change', inputElement, onFileInputChange);
+
+        return {
+            onFileChange:storeSubscriber
+        };
+
+        function storeSubscriber(fn){
+            _subscribers.push(fn);
+        }
+
+        function notifySubscribers(file){
+            var totalSubscribers= _subscribers.length;
+            while(totalSubscribers--){
+                if(_subscribers[totalSubscribers] && typeof _subscribers[totalSubscribers] === 'function'){
+                    _subscribers[totalSubscribers](file);
+                }
+            }
+        }
+
+        function onFileInputChange(e){
+            var files       = this.files;
+
+            for(var file in files){
+                if(typeof files[file] === 'object' && files[file].type.match('image.*')){
+                    return onFileChosen(files[file]);
+                }
+            }
+        }
+
+        function onFileChosen(file){
+            var reader = new FileReader();
+            reader.onload = onReaderLoad;
+            reader.readAsDataURL(file);
+            function onReaderLoad(e){
+                notifySubscribers(e.target.result);
+            }
+        }
     }
 })();
 },{}]},{},[1]);
