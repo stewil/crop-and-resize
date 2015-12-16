@@ -9,7 +9,7 @@ canvas {
   position: absolute;
   width: 200px;
   height: 200px;
-  border: 2px solid white;
+  border: 2px dashed white;
   cursor: move;
   top: 50%;
   left: 50%;
@@ -65,7 +65,7 @@ canvas {
       cursor: s-resize; }
     .cr-crop-window .cr-crop-handle[class*=bottom-left] {
       cursor: sw-resize; }
-    .cr-crop-window .cr-crop-handle[class*=left-center] {
+    .cr-crop-window .cr-crop-handle[class*=left-middle] {
       cursor: w-resize; }
 
 [data-drag-drop-target] {

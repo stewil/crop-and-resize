@@ -12,7 +12,7 @@
         var _eventQueues    = require('./classes/events-queue.js')(),
             dragDrop        = require('./classes/drag-drop.js')(_eventQueues, attributes['dragDropTarget']),
             cropWindow      = require('./classes/crop-window.js')(element, _eventQueues, createImgInstance),
-            bindCanvas      = require('./classes/canvas.js')(element, _eventQueues, attributes, cropWindow),
+            bindCanvas      = require('./classes/canvas.js')(_eventQueues),
             fileInput       = require('./classes/file-input.js')(_eventQueues, element);
 
         init();
@@ -23,15 +23,20 @@
         }
 
         function onFileProcessed(file){
-            var fileHandler = {};
 
-            fileHandler.original    = {};
-            fileHandler.cropped     = {};
+            var parent      =   element.parentElement,
+                canvas      =   document.createElement('canvas');
 
-            fileHandler.original['url'] = file;
-            fileHandler.original['size'] = bytesToSize(file.size);
+            if(attributes['target']){
+                attributes['target'].appendChild(canvas)
+            }else{
+                parent.insertBefore(canvas, element);
+            }
 
-            bindCanvas.call(fileHandler);
+            bindCanvas(canvas, file).onChange(function(canvasData){
+                console.log(canvasData);
+                cropWindow((attributes['target'] || parent), canvasData.canvas, canvasData.context);
+            });
         }
 
         function remove(){
@@ -68,7 +73,96 @@
 (function() {
     module.exports = CanvasDependencies;
 
-    function CanvasDependencies(_element, _eventQueues, attributes, cropWindow) {
+    function CanvasDependencies(_eventQueues) {
+        
+        var _onChangeQueue  =   [],
+            _image          =   new Image(),
+            _source         =   {},
+            _canvas         =   {},
+            _canvasElement,
+            _context;
+
+        _image.onload       =   onCanvasSrcLoad;
+        _eventQueues.subscribe('resize', window, cacheCanvasDimensions);
+
+        return function(canvasElement, file){
+            _canvasElement  =   canvasElement;
+            _context        =   _canvasElement.getContext('2d');
+            _image.src      =   file;
+            return {
+                onChange:storeOnChange
+            };
+        };
+
+        function onCanvasSrcLoad(e){
+            _source['width']  = this.width;
+            _source['height'] = this.height;
+
+            _canvas['width']  = _canvasElement.width;
+            _canvas['height'] = _canvasElement.height;
+
+            var canvasParams = measureContext();
+
+            _context.clearRect(0, 0, _canvas.width, _canvas.height);
+            _context.drawImage(_image,
+                canvasParams.sx,
+                canvasParams.sy,
+                canvasParams.sWidth,
+                canvasParams.sHeight,
+                canvasParams.dx,
+                canvasParams.dy,
+                canvasParams.dWidth,
+                canvasParams.dHeight
+            );
+            cacheCanvasDimensions();
+            notify();
+        }
+
+        function storeOnChange(fn){
+            _onChangeQueue.push(fn);
+        }
+        
+        function notify(){
+            var totalSubscribers= _onChangeQueue.length;
+            while(totalSubscribers--){
+                if(_onChangeQueue[totalSubscribers] && typeof _onChangeQueue[totalSubscribers] === 'function'){
+                    _onChangeQueue[totalSubscribers]({
+                        source:_source,
+                        canvas:_canvas,
+                        context:_context
+                    });
+                }
+            }
+        }
+        
+        function cacheCanvasDimensions(){
+            if(_canvasElement){
+                var canvasBounding = _canvasElement.getBoundingClientRect();
+
+                _canvas['top']      = canvasBounding.top;
+                _canvas['left']     = canvasBounding.left;
+                _canvas['cWidth']   = _canvasElement.clientWidth;
+                _canvas['cHeight']  = _canvasElement.clientHeight;
+            }
+        }
+
+        function measureContext(){
+            var hRatio      =   _canvas.width  / _source.width,
+                vRatio      =   _canvas.height  / _source.height,
+                ratio       =   Math.min ( hRatio, vRatio);
+
+            return {
+                sx:         0,
+                sy:         0,
+                sWidth:     _source.width,
+                sHeight:    _source.height,
+                dx:         (_canvas.width - _source.height * ratio ) / 2,
+                dy:         (_canvas.height - _source.height * ratio ) / 2,
+                dWidth:     _source.width * ratio,
+                dHeight:    _source.height * ratio
+            }
+        }
+
         return function bindCanvas() {
             var self = this,
                 canvas = document.createElement('canvas');
@@ -83,9 +177,9 @@
             image.onload    =   onCanvasImageLoad;
             image.src       =   self.original.url;
 
-            _eventQueues.subscribe('resize', window, cacheCanvasDimensions);
 
-            function cacheCanvasDimensions(e){
+
+            /*function cacheCanvasDimensions(e){
                 var canvasBounding = canvas.getBoundingClientRect();
 
                 self.canvas['top']      = canvasBounding.top;
@@ -93,7 +187,7 @@
                 self.canvas['left']     = canvasBounding.left;
                 self.canvas['cWidth']   = canvas.clientWidth;
                 self.canvas['cHeight']   = canvas.clientHeight;
-            }
+            }*/
 
             function onCanvasImageLoad(){
                 self.original['width']  =   this.width;
@@ -104,11 +198,13 @@
 
                 var canvasParams = measurements(self.original, self.canvas);
 
-                if(attributes['target']){
+
+                //TODO:This information should be passed into the function
+                /*if(attributes['target']){
                     attributes['target'].appendChild(self.canvas.element)
                 }else{
                     parent.insertBefore(self.canvas.element, _element);
-                }
+                }*/
 
                 self.canvas.context.clearRect(0, 0, self.canvas['width'], self.canvas['height']);
                 self.canvas.context.drawImage(image,
@@ -151,7 +247,7 @@
     module.exports = CropWindowDependencies;
 
     function CropWindowDependencies(_element, _eventQueues, createImgInstance){
-        return function(target, canvas, croppedSrc){
+        return function(target, canvas, context){
 
             var _translate          =   {},
                 _focusElement,
@@ -215,8 +311,8 @@
                         maxTop          = cropWindowElement.offsetTop * -1,
                         maxRight        = cropWindowElement.offsetLeft - (cropWindowElement.clientWidth - baseWidth),
                         maxBottom       = cropWindowElement.offsetTop - (cropWindowElement.clientHeight - baseHeight),
-                        canvasWidth     = canvas.element.clientWidth,
-                        canvasHeight    = canvas.element.clientHeight,
+                        canvasWidth     = canvas.cWidth,
+                        canvasHeight    = canvas.cHeight,
                         newX            = (_translate.x + Number(e.x - mouseStart.x)),
                         newY            = (_translate.y + Number(e.y - mouseStart.y)),
                         maxHeight,
@@ -268,16 +364,15 @@
             }
 
             function generatePreviewDimensions(){
-                var canvasBoundingRect  =   canvas.element.getBoundingClientRect(),
-                    canvasWidth         =   canvas.element.clientWidth,
-                    canvasHeight        =   canvas.element.clientHeight,
+                var canvasWidth         =   canvas.cWidth,
+                    canvasHeight        =   canvas.cHeight,
                     heightPercent       =   cropWindowElement.clientHeight / canvasHeight,
                     widthPercent        =   cropWindowElement.clientWidth / canvasWidth,
-                    leftPercent         =   (cropWindowElement.getBoundingClientRect().left - canvasBoundingRect.left) / canvasWidth,
-                    topPercent          =   (cropWindowElement.getBoundingClientRect().top - canvasBoundingRect.top) / canvasHeight,
+                    leftPercent         =   (cropWindowElement.getBoundingClientRect().left - canvas.left) / canvasWidth,
+                    topPercent          =   (cropWindowElement.getBoundingClientRect().top - canvas.top) / canvasHeight,
                     newWidth            =   canvas.width * widthPercent,
                     newHeight           =   canvas.height * heightPercent,
-                    newImgData          =   canvas.context.getImageData(
+                    newImgData          =   context.getImageData(
                                                 canvas.width * leftPercent,
                                                 canvas.height * topPercent,
                                                 newWidth,

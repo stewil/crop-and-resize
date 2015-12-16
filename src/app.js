@@ -11,7 +11,7 @@
         var _eventQueues    = require('./classes/events-queue.js')(),
             dragDrop        = require('./classes/drag-drop.js')(_eventQueues, attributes['dragDropTarget']),
             cropWindow      = require('./classes/crop-window.js')(element, _eventQueues, createImgInstance),
-            bindCanvas      = require('./classes/canvas.js')(element, _eventQueues, attributes, cropWindow),
+            bindCanvas      = require('./classes/canvas.js')(_eventQueues),
             fileInput       = require('./classes/file-input.js')(_eventQueues, element);
 
         init();
@@ -22,15 +22,20 @@
         }
 
         function onFileProcessed(file){
-            var fileHandler = {};
 
-            fileHandler.original    = {};
-            fileHandler.cropped     = {};
+            var parent      =   element.parentElement,
+                canvas      =   document.createElement('canvas');
 
-            fileHandler.original['url'] = file;
-            fileHandler.original['size'] = bytesToSize(file.size);
+            if(attributes['target']){
+                attributes['target'].appendChild(canvas)
+            }else{
+                parent.insertBefore(canvas, element);
+            }
 
-            bindCanvas.call(fileHandler);
+            bindCanvas(canvas, file).onChange(function(canvasData){
+                console.log(canvasData);
+                cropWindow((attributes['target'] || parent), canvasData.canvas, canvasData.context);
+            });
         }
 
         function remove(){

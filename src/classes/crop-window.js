@@ -2,7 +2,7 @@
     module.exports = CropWindowDependencies;
 
     function CropWindowDependencies(_element, _eventQueues, createImgInstance){
-        return function(target, canvas, croppedSrc){
+        return function(target, canvas, context){
 
             var _translate          =   {},
                 _focusElement,
@@ -66,8 +66,8 @@
                         maxTop          = cropWindowElement.offsetTop * -1,
                         maxRight        = cropWindowElement.offsetLeft - (cropWindowElement.clientWidth - baseWidth),
                         maxBottom       = cropWindowElement.offsetTop - (cropWindowElement.clientHeight - baseHeight),
-                        canvasWidth     = canvas.element.clientWidth,
-                        canvasHeight    = canvas.element.clientHeight,
+                        canvasWidth     = canvas.cWidth,
+                        canvasHeight    = canvas.cHeight,
                         newX            = (_translate.x + Number(e.x - mouseStart.x)),
                         newY            = (_translate.y + Number(e.y - mouseStart.y)),
                         maxHeight,
@@ -119,16 +119,15 @@
             }
 
             function generatePreviewDimensions(){
-                var canvasBoundingRect  =   canvas.element.getBoundingClientRect(),
-                    canvasWidth         =   canvas.element.clientWidth,
-                    canvasHeight        =   canvas.element.clientHeight,
+                var canvasWidth         =   canvas.cWidth,
+                    canvasHeight        =   canvas.cHeight,
                     heightPercent       =   cropWindowElement.clientHeight / canvasHeight,
                     widthPercent        =   cropWindowElement.clientWidth / canvasWidth,
-                    leftPercent         =   (cropWindowElement.getBoundingClientRect().left - canvasBoundingRect.left) / canvasWidth,
-                    topPercent          =   (cropWindowElement.getBoundingClientRect().top - canvasBoundingRect.top) / canvasHeight,
+                    leftPercent         =   (cropWindowElement.getBoundingClientRect().left - canvas.left) / canvasWidth,
+                    topPercent          =   (cropWindowElement.getBoundingClientRect().top - canvas.top) / canvasHeight,
                     newWidth            =   canvas.width * widthPercent,
                     newHeight           =   canvas.height * heightPercent,
-                    newImgData          =   canvas.context.getImageData(
+                    newImgData          =   context.getImageData(
                                                 canvas.width * leftPercent,
                                                 canvas.height * topPercent,
                                                 newWidth,
