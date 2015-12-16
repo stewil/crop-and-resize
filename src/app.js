@@ -33,7 +33,6 @@
             }
 
             bindCanvas(canvas, file).onChange(function(canvasData){
-                console.log(canvasData);
                 cropWindow((attributes['target'] || parent), canvasData.canvas, canvasData.context);
             });
         }
