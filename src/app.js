@@ -10,9 +10,12 @@
         //CLASSES
         var _eventQueues    = require('./classes/events-queue.js')(),
             dragDrop        = require('./classes/drag-drop.js')(_eventQueues, attributes['dragDropTarget']),
-            cropWindow      = require('./classes/crop-window.js')(element, _eventQueues, createImgInstance),
+            cropWindow      = require('./classes/crop-window.js')(element, _eventQueues, createImgInstance, attributes['target']),
             bindCanvas      = require('./classes/canvas.js')(_eventQueues),
             fileInput       = require('./classes/file-input.js')(_eventQueues, element);
+
+        //
+        var _canvas;
 
         init();
 
@@ -22,19 +25,25 @@
         }
 
         function onFileProcessed(file){
+            if(!_canvas){
 
-            var parent      =   element.parentElement,
-                canvas      =   document.createElement('canvas');
+                var parent      =   element.parentElement,
+                    canvas      =   document.createElement('canvas');
 
-            if(attributes['target']){
-                attributes['target'].appendChild(canvas)
+                if(attributes['target']){
+                    attributes['target'].appendChild(canvas)
+                }else{
+                    parent.insertBefore(canvas, element);
+                }
+
+                _canvas = bindCanvas(canvas, file);
+                _canvas.onChange(function(canvasData){
+                    cropWindow.init();
+                    cropWindow.updateContext(canvasData);
+                });
             }else{
-                parent.insertBefore(canvas, element);
+                _canvas.changeFile(file);
             }
-
-            bindCanvas(canvas, file).onChange(function(canvasData){
-                cropWindow((attributes['target'] || parent), canvasData.canvas, canvasData.context);
-            });
         }
 
         function remove(){
@@ -49,7 +58,7 @@
             buffer.height   =   height;
             bufferCtx.putImageData(croppedImageData, 0, 0);
 
-            croppedImageElement.src = buffer.toDataURL('image/png');
+            attributes['previewElement'].src = buffer.toDataURL('image/png');
 
             if(target && !target.contains(croppedImageElement)){
                 target.appendChild(croppedImageElement);
