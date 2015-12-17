@@ -1,4 +1,18 @@
 [data-drag-drop-target]{
-  border: 1px dashed darkgrey;
-  background-color: lightgrey;
+  border: 2px dashed rgba(0,0,0,0.4);
+  background-color: rgba(0,0,0,0.1);
+  transition: background 250ms ease-in-out;
+  &::before{
+    content:"Drag and drop here";
+    text-transform: uppercase;
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  &.drag-over{
+    background-color: rgba(0,0,0,0.2);
+  }
 }

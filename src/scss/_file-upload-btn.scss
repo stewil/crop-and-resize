@@ -1,0 +1,10 @@
+.upload-btn{
+  &:after{
+    content:"Upload File";
+  }
+  overflow: hidden;
+  input[type="file"]{
+    position: absolute;
+    left: -100%;
+  }
+}

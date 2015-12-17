@@ -3,10 +3,13 @@
 
     function DragDropDependencies(_eventQueues, dragDropTarget){
 
-        var _subscribers = [];
+        var _subscribers    = [],
+            focusClassName  = 'drag-over';
 
         _eventQueues.subscribe('drop',      dragDropTarget, onDrop);
         _eventQueues.subscribe('dragover',  dragDropTarget, onDragOver);
+        _eventQueues.subscribe('dragleave', dragDropTarget, onDragLeave);
+        _eventQueues.subscribe('dragenter', dragDropTarget, onDragEnter);
 
         return {
             onFileChange:onFileChange
@@ -35,6 +38,14 @@
             evt.stopPropagation();
             evt.preventDefault();
             evt.dataTransfer.dropEffect = 'copy';
+        }
+
+        function onDragEnter(evt){
+            dragDropTarget.classList.add(focusClassName);
+        }
+
+        function onDragLeave(evt){
+            dragDropTarget.classList.remove(focusClassName);
         }
 
     }
