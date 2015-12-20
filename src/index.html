@@ -3,17 +3,22 @@
     <meta charset="UTF-8">
     <title>Image Resize & Crop</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="css/main.css"/>
+    <link rel="stylesheet" href="css/crop-resize-v0.0.0.min.css"/>
 </head>
 <body>
     <div class="container">
         <h1>Crop Resize</h1>
         <form action="">
-            <div class="embed-responsive embed-responsive-16by9" data-cropresize-target data-drag-drop-target>
+            <div class="row content">
+                <div class="col-xs-12 col-xs-9">
+                    <div class="embed-responsive embed-responsive-16by9" data-cropresize-target data-drag-drop-target>
 
-            </div>
-            <div class="row ">
-                <div class="col-xs-12 col-xs-4">
+                    </div>
+                </div>
+                <div class="col-xs-12 col-xs-3">
+                    <div class="preview">
+                        <img src="" alt="" data-cr-preview/>
+                    </div>
                     <label class="btn btn-primary btn-lg upload-btn">
                         <input id="file-uploader" type="file"/>
                     </label>
@@ -22,12 +27,13 @@
             </div>
         </form>
     </div>
-    <script src="./js/crop-resize.js"></script>
+    <script src="./js/crop-resize-v0.0.0.min.js"></script>
     <script type="application/javascript">
         var _element    = document.querySelector('#file-uploader'),
             _cropResize = new CropResize(_element, {
-                target:document.querySelector('[data-cropresize-target]'),
-                dragDropTarget:document.querySelector('[data-drag-drop-target]')
+                target          :   document.querySelector('[data-cropresize-target]'),
+                dragDropTarget  :   document.querySelector('[data-drag-drop-target]'),
+                previewElement  :   document.querySelector('[data-cr-preview]')
             });
 
     </script>

@@ -1,25 +1,25 @@
 {
-  "name":"crop-resize",
+  "name": "crop-resize",
   "version": "0.0.0",
-  "description":"",
+  "description": "",
   "license": "MIT",
-  "main":[
-    "dist/js/crop-resize.min.js"
+  "main": [
+    "dist/js/*.min.js"
   ],
-  "ignore":[],
-  "keywords":[],
-  "authors":[
+  "ignore": [],
+  "keywords": [],
+  "authors": [
     {
-      "name":"Steve Wilcox"
+      "name": "Steve Wilcox"
     }
   ],
-  "dependencies":{},
-  "devDependencies":{
-    "jasmine":"^2.3"
+  "dependencies": {},
+  "devDependencies": {
+    "jasmine": "^2.3"
   },
   "repository": {
     "type": "git",
     "url": ""
   },
-  "private":false
+  "private": false
 }

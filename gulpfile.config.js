@@ -3,6 +3,7 @@
 var GulpConfig = (function () {
     function GulpConfig() {
 
+        this.debug                          =       './debug/';
         this.dist                           =       './dist/';
         this.source                         =       './src/';
         this.bowerFilesSettings             =       {};

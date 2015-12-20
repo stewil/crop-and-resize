@@ -1,109 +1,181 @@
 'use strict';
 
 var gulp            =   require('gulp'),
+    watch           =   require('gulp-watch'),
     sass            =   require('gulp-sass'),
     autoprefixer    =   require('gulp-autoprefixer'),
-    debug           =   require('gulp-debug'),
     sourcemaps      =   require('gulp-sourcemaps'),
     rename          =   require('gulp-rename'),
-    concat          =   require('gulp-concat'),
     uglify          =   require('gulp-uglify'),
-    bump            =   require('gulp-bump'),
-    browserify      =   require('browserify'),
-    source          =   require('vinyl-source-stream'),
-    streamify       =   require('gulp-streamify'),
     del             =   require('del'),
+    bump            =   require('gulp-bump'),
+    ifElse          =   require('gulp-if-else'),
+    runSequence     =   require('run-sequence'),
+    streamify       =   require('gulp-streamify'),
+    source          =   require('vinyl-source-stream'),
+    browserify      =   require('browserify'),
     browserSync     =   require('browser-sync').create(),
-    Config          =   require('./gulpfile.config'),
-    vendor          =   require('bower-files')({});
+    argv            =   require('yargs').argv,
+    Config          =   require('./gulpfile.config');
 
-var config          =   new Config(),
-    npmSettings     =   require('./package.json');
+var packageJson     =   require('./package.json'),
+    config          =   new Config(packageJson);
 
-/*================================================================
-    TASKS
- ================================================================*/
+/*========================================================================
+ TASKS
+ ========================================================================*/
 
-gulp.task("del",            clearDistFiles);
-gulp.task("sass",           compileSASS);
-gulp.task("js",             compileJS);
-gulp.task("views",          copyHtml);
-gulp.task("index",          copyIndex);
-gulp.task("html",           ['index', 'views']);
-gulp.task('bower-files',    bowerFiles);
-gulp.task('reload-JS',      ['js'],         reloadBrowser);
-gulp.task('reload-TS',      ['ts'],         reloadBrowser);
-gulp.task('reload-SCSS',    ['sass'],       reloadBrowser);
-gulp.task('reload-HTML',    ['html'],       reloadBrowser);
-gulp.task('reload-IMG',     ['img'],        reloadBrowser);
-gulp.task('watch',          ['sass', 'html', 'js'], serve);
+//  BUILD
+//-----------------------------------------------------------------------
+gulp.task('debug', bundleDebug);
+gulp.task('build', bundleBuild);
+gulp.task('watch', ['debug'], serve);
+gulp.task("bumpPackage", bumpPackage);
+gulp.task("bumpBowerPackage", bumpBowerPackage);
 
-/*================================================================
-    FUNCTIONS
- ================================================================*/
+//  JAVASCRIPT
+//-----------------------------------------------------------------------
+gulp.task("debugJS", debugJS);
+gulp.task("buildJS", buildJS);
+gulp.task('reloadJS', ['debug'], reloadBrowser);
 
-function bowerFiles() {
+//  SASS
+//-----------------------------------------------------------------------
+gulp.task("buildSASS", buildSASS);
+gulp.task("debugSASS", debugSASS);
+gulp.task('reloadSASS', ['debug'], reloadBrowser);
 
-    var vendorFiles = vendor.ext('js').files.concat(config.plugins);
+//  HTML
+//-----------------------------------------------------------------------
+gulp.task("debugHTML", debugHTML);
+gulp.task("buildHTML", buildHTML);
+gulp.task('reloadHTML', ['debug'], reloadBrowser);
 
-    return gulp.src(vendorFiles)
-        .pipe(sourcemaps.init())
-        .pipe(uglify())
-        .pipe(concat('vendor.min.js'))
-        .pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest(config.dist + 'js/'));
+/*========================================================================
+ FUNCTIONS
+ ========================================================================*/
+
+function bundle(dir, taskPrefix){
+    packageJson = require('./package.json');
+
+    return runSequence([
+        taskPrefix + 'JS',
+        taskPrefix + 'SASS',
+        taskPrefix + 'HTML']);
 }
 
-function compileJS() {
-    var jsBundle = browserify(config.application).bundle();
+function bundleBuild(){
+    return clearDistFiles(config.dist, function(){
+        return runSequence([
+            'bumpPackage',
+            'bumpBowerPackage'
+        ], function(){
+            return bundle(config.dist, 'build');
+        });
+    });
+}
+function bundleDebug(){
+    return clearDistFiles(config.debug, function(){
+        return bundle(config.debug, 'debug');
+    });
+}
+
+function copyHtml(dir){
+    return gulp.src(config.index)
+        .pipe(gulp.dest(dir));
+}
+
+function buildHTML(){
+    return copyHtml(config.dist);
+}
+function debugHTML(){
+    return copyHtml(config.debug);
+}
+
+function compileJS(dir) {
+
+    var jsBundle    = browserify(config.application).bundle(),
+        jsFileName  = packageJson.name + '-v' + packageJson.version;
 
     return jsBundle
         .pipe(source(config.application))
-        .pipe(rename(npmSettings.name + '.js'))
-        .pipe(gulp.dest(config.dist + 'js/'));
+        .pipe(streamify(sourcemaps.init()))
+        .pipe(rename(jsFileName + '.js'))
+        .pipe(gulp.dest(dir + 'js/'))
+        .pipe(streamify(uglify()))
+        .pipe(rename(jsFileName + '.min.js'))
+        .pipe(streamify(sourcemaps.write('.')))
+        .pipe(gulp.dest(dir + 'js/'));
 }
 
-function compileSASS() {
-    //TODO:Check this against browserSyncStream
+function debugJS(){
+    return compileJS(config.debug);
+}
+function buildJS(){
+    return compileJS(config.dist);
+}
+
+function compileSASS(dir) {
+
+    var cssFileName = packageJson.name + '-v' + packageJson.version;
+
     return gulp.src(config.scss)
-        .pipe(sourcemaps.init())
         .pipe(sass())
-        .pipe(autoprefixer())
-        .pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest(config.dist + 'css'));
+        .pipe(rename(cssFileName + '.min.css'))
+        .pipe(gulp.dest(dir + 'css'));
 }
 
-function browserSyncStream(pipeline) {
-    return browserSync == null ?
-        pipeline :
-        pipeline.pipe(browserSync.stream());
+function buildSASS(){
+    return compileSASS(config.dist);
 }
 
-function copyHtml(){
-    return gulp.src(config.html)
-        .pipe(rename({
-            dirname:"views/"
-        }))
-        .pipe(gulp.dest(config.dist));
-}
-function copyIndex(){
-    return gulp.src(config.index)
-        .pipe(gulp.dest(config.dist));
+function debugSASS(){
+    return compileSASS(config.debug);
 }
 
-function serve() {
+function bumpPackage(){
+    return gulp.src('./package.json')
+        .pipe(bump({type:(function(){
+            if(argv.major){
+                return 'major';
+            }
+            if(argv.minor){
+                return 'minor';
+            }
+            if(argv.patch){
+                return 'patch';
+            }
+        })()}))
+        .pipe(gulp.dest('./'));
+}
 
+function bumpBowerPackage(){
+    return gulp.src('./bower.json')
+        .pipe(bump({type:(function(){
+            if(argv.major){
+                return 'major';
+            }
+            if(argv.minor){
+                return 'minor';
+            }
+            if(argv.patch){
+                return 'patch';
+            }
+        })()}))
+        .pipe(gulp.dest('./'));
+}
+
+function serve(){
     if (browserSync != null) {
         browserSync.init({
-            server: config.dist
+            server: config.debug
         });
     }else{
         console.warn("Browser sync not available in your environment.");
     }
-    gulp.watch(config.scss,             ['reload-SCSS']);
-    gulp.watch(config.html,             ['reload-HTML']);
-    gulp.watch(config.index,            ['reload-HTML']);
-    gulp.watch(config.javascriptModules,['reload-JS']);
+    gulp.watch(config.scss,       ['reloadSASS']);
+    gulp.watch(config.index,      ['reloadHTML']);
+    gulp.watch(config.javascript, ['reloadJS']);
 }
 
 function reloadBrowser(){
@@ -112,6 +184,10 @@ function reloadBrowser(){
     }
 }
 
-function clearDistFiles(){
-    return del(config.dist + '/*', function(){});
+function clearDistFiles(dir, fn){
+    return del(dir + '/*').then(function() {
+        if (fn) {
+            fn();
+        }
+    });
 }
