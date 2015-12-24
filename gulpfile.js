@@ -8,11 +8,13 @@ var gulp            =   require('gulp'),
     rename          =   require('gulp-rename'),
     uglify          =   require('gulp-uglify'),
     del             =   require('del'),
+    fs              =   require('fs'),
     bump            =   require('gulp-bump'),
     ifElse          =   require('gulp-if-else'),
     runSequence     =   require('run-sequence'),
     streamify       =   require('gulp-streamify'),
     source          =   require('vinyl-source-stream'),
+    template        =   require('gulp-template'),
     browserify      =   require('browserify'),
     browserSync     =   require('browser-sync').create(),
     argv            =   require('yargs').argv,
@@ -56,46 +58,50 @@ gulp.task('reloadHTML', ['debug'], reloadBrowser);
  ========================================================================*/
 
 function bundle(dir, taskPrefix){
-    packageJson = require('./package.json');
+    var tasks = [];
 
-    return runSequence([
-        taskPrefix + 'JS',
-        taskPrefix + 'SASS',
-        taskPrefix + 'HTML']);
+    return clearDistFiles(dir, function() {
+        if (taskPrefix === 'build') {
+            tasks.push([
+                'bumpPackage',
+                'bumpBowerPackage'
+            ]);
+        }
+        tasks.push([
+            taskPrefix + 'JS',
+            taskPrefix + 'SASS',
+            taskPrefix + 'HTML'
+        ]);
+
+        return runSequence.apply(null, tasks);
+    });
 }
 
 function bundleBuild(){
-    return clearDistFiles(config.dist, function(){
-        return runSequence([
-            'bumpPackage',
-            'bumpBowerPackage'
-        ], function(){
-            return bundle(config.dist, 'build');
-        });
-    });
-}
-function bundleDebug(){
-    return clearDistFiles(config.debug, function(){
-        return bundle(config.debug, 'debug');
-    });
+    return bundle(config.dist, 'build')
 }
 
-function copyHtml(dir){
-    return gulp.src(config.index)
+function bundleDebug(){
+    return bundle(config.debug, 'debug')
+}
+
+function createHtml(dir){
+    gulp.src(config.index)
+        .pipe(template({name: createBundleName()}))
         .pipe(gulp.dest(dir));
 }
 
 function buildHTML(){
-    return copyHtml(config.dist);
+    return createHtml(config.dist);
 }
 function debugHTML(){
-    return copyHtml(config.debug);
+    return createHtml(config.debug);
 }
 
 function compileJS(dir) {
 
     var jsBundle    = browserify(config.application).bundle(),
-        jsFileName  = packageJson.name + '-v' + packageJson.version;
+        jsFileName  = createBundleName();
 
     return jsBundle
         .pipe(source(config.application))
@@ -117,11 +123,11 @@ function buildJS(){
 
 function compileSASS(dir) {
 
-    var cssFileName = packageJson.name + '-v' + packageJson.version;
+    var cssFileName = createBundleName();
 
     return gulp.src(config.scss)
         .pipe(sass())
-        .pipe(rename(cssFileName + '.min.css'))
+        .pipe(rename(cssFileName + '.css'))
         .pipe(gulp.dest(dir + 'css'));
 }
 
@@ -173,9 +179,9 @@ function serve(){
     }else{
         console.warn("Browser sync not available in your environment.");
     }
-    gulp.watch(config.scss,       ['reloadSASS']);
-    gulp.watch(config.index,      ['reloadHTML']);
-    gulp.watch(config.javascript, ['reloadJS']);
+    gulp.watch(config.scss,             ['reloadSASS']);
+    gulp.watch(config.index,            ['reloadHTML']);
+    gulp.watch(config.javascriptModules,['reloadJS']);
 }
 
 function reloadBrowser(){
@@ -191,3 +197,10 @@ function clearDistFiles(dir, fn){
         }
     });
 }
+
+function createBundleName(){
+    var config = fs.readFileSync('./package.json', 'utf-8');
+    packageJson = JSON.parse(config);
+    return packageJson.name + '-' + packageJson.version;
+}
+

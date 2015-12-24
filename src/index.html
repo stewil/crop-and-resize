@@ -3,7 +3,7 @@
     <meta charset="UTF-8">
     <title>Image Resize & Crop</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="css/crop-resize-v0.0.0.min.css"/>
+    <link rel="stylesheet" href="css/<%= name %>.css"/>
 </head>
 <body>
     <div class="container">
@@ -27,7 +27,7 @@
             </div>
         </form>
     </div>
-    <script src="./js/crop-resize-v0.0.0.min.js"></script>
+    <script src="./js/<%= name %>.min.js"></script>
     <script type="application/javascript">
         var _element    = document.querySelector('#file-uploader'),
             _cropResize = new CropResize(_element, {
