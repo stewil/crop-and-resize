@@ -1,10 +1,11 @@
 .upload-btn{
+  margin-top: 20px;
   &:after{
     content:"Upload File";
   }
   overflow: hidden;
   input[type="file"]{
-    position: absolute;
-    left: -100%;
+    position: fixed;
+    top: -1000%;
   }
 }
