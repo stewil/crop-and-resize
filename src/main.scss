@@ -1,7 +1,7 @@
 
 
-@import "./scss/canvas";
-@import "./scss/file-upload-btn";
-@import "./scss/crop-window";
-@import "./scss/drag-drop";
-@import "./scss/preview";
+@import "components/canvas/_canvas";
+@import "components/file-input/_file-upload-btn";
+@import "components/crop-window/_crop-window";
+@import "components/drag-drop/_drag-drop";
+@import "components/preview/_preview";

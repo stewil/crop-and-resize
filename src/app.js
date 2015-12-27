@@ -8,11 +8,11 @@
         this.images = {};
 
         //CLASSES
-        var _eventQueues    = require('./classes/events-queue.js')(),
-            dragDrop        = require('./classes/drag-drop.js')(_eventQueues, attributes['dragDropTarget']),
-            cropWindow      = require('./classes/crop-window.js')(element, _eventQueues, createImgInstance, attributes['target']),
-            bindCanvas      = require('./classes/canvas.js')(_eventQueues),
-            fileInput       = require('./classes/file-input.js')(_eventQueues, element);
+        var _eventQueues    = require('./components/events-queue/events-queue.js')(),
+            dragDrop        = require('./components/drag-drop/drag-drop.js')(_eventQueues, attributes['dragDropTarget']),
+            cropWindow      = require('./components/crop-window/crop-window.js')(element, _eventQueues, createImgInstance, attributes['target']),
+            bindCanvas      = require('./components/canvas/canvas.js')(_eventQueues),
+            fileInput       = require('./components/file-input/file-input.js')(_eventQueues, element);
 
         //
         var _canvas;
@@ -66,12 +66,7 @@
             return croppedImageElement;
         }
 
-        function bytesToSize(bytes) {
-            var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-            if (bytes == 0) return '0 Byte';
-            var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
-            return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
-        }
+
 
     }
 
