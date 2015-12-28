@@ -4,8 +4,9 @@
 
     function CropResize(element, attributes){
 
-        this.remove = remove;
-        this.images = {};
+        var _canvas;
+
+
 
         //CLASSES
         var _eventQueues    = require('./components/events-queue/events-queue.js')(),
@@ -14,8 +15,9 @@
             bindCanvas      = require('./components/canvas/canvas.js')(_eventQueues),
             fileInput       = require('./components/file-input/file-input.js')(_eventQueues, element);
 
-        //
-        var _canvas;
+        //PUBLIC METHODS
+        this.remove = remove;
+        this.images = {};
 
         init();
 
@@ -58,16 +60,13 @@
             buffer.height   =   height;
             bufferCtx.putImageData(croppedImageData, 0, 0);
 
-            attributes['previewElement'].src = buffer.toDataURL('image/png');
+            attributes['previewElement'].src = buffer.toDataURL('image/png', 1);
 
             if(target && !target.contains(croppedImageElement)){
                 target.appendChild(croppedImageElement);
             }
             return croppedImageElement;
         }
-
-
-
     }
 
 })(document, window);

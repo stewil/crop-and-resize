@@ -86,19 +86,18 @@
         function measureContext(){
             var hRatio      =   _canvas.width  / _source.width,
                 vRatio      =   _canvas.height  / _source.height,
-                ratio       =   Math.min ( hRatio, vRatio);
+                ratio       =   Math.min( hRatio, vRatio);
 
             return {
                 sx:         0,
                 sy:         0,
                 sWidth:     _source.width,
                 sHeight:    _source.height,
-                dx:         (_canvas.width - _source.height * ratio ) / 2,
+                dx:         (_canvas.width - _source.width * ratio ) / 2,
                 dy:         (_canvas.height - _source.height * ratio ) / 2,
                 dWidth:     _source.width * ratio,
                 dHeight:    _source.height * ratio
             }
         }
-
     }
 })();
