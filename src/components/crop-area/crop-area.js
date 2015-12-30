@@ -1,7 +1,7 @@
 (function() {
     module.exports = CanvasDependencies;
 
-    function CanvasDependencies(_eventQueues) {
+    function CanvasDependencies() {
         
         var _onChangeQueue  =   [],
             _image          =   new Image(),
@@ -10,10 +10,21 @@
             _canvasElement,
             _context;
 
-        _image.onload       =   onCanvasSrcLoad;
-        _eventQueues.subscribe('resize', window, cacheCanvasDimensions);
+        /*========================================================================
+            PUBLIC
+        ========================================================================*/
+        this.cropArea       = {};
+        this.cropArea.init  = init;
 
-        return function(canvasElement, file){
+        /*========================================================================
+            PRIVATE
+        ========================================================================*/
+
+        _image.onload       =   onCanvasSrcLoad;
+
+        this.eventsQueue.subscribe('resize', window, cacheCanvasDimensions);
+
+        function init(canvasElement, file){
             _canvasElement  =   canvasElement;
             _context        =   _canvasElement.getContext('2d');
             _image.src      =   file;
@@ -21,7 +32,7 @@
                 onChange:storeOnChange,
                 changeFile:changeFile
             };
-        };
+        }
 
         function changeFile(file){
             _image.src      =   file;

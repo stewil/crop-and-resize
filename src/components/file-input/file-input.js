@@ -3,15 +3,22 @@
 
     module.exports = FileInput;
 
-    function FileInput(_eventQueues, inputElement){
+    function FileInput(inputElement){
 
-        var _subscribers = [];
+        var _subscribers    = [];
 
-        _eventQueues.subscribe('change', inputElement, onFileInputChange);
+        /*========================================================================
+            PUBLIC
+        ========================================================================*/
 
-        return {
-            onFileChange:storeSubscriber
-        };
+        this.fileInput              = {};
+        this.fileInput.onFileChange = storeSubscriber;
+
+        /*========================================================================
+            PRIVATE
+        ========================================================================*/
+
+        this.eventsQueue.subscribe('change', inputElement, onFileInputChange);
 
         function storeSubscriber(fn){
             _subscribers.push(fn);

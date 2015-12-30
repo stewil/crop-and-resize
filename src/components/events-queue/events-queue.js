@@ -1,20 +1,24 @@
 (function(){
-    module.exports = EventsQueueDependencies;
+    module.exports = EventsQueue;
 
-    function EventsQueueDependencies(){
+    function EventsQueue(){
 
-        var _queue = [];
+        var _queue      = [];
 
-        return {
-            subscribe   :subscribe,
-            removeAll   :removeAll
-        };
+        /*========================================================================
+            PUBLIC
+        ========================================================================*/
 
+        this.eventsQueue            = {};
+        this.eventsQueue.subscribe  = subscribe;
+        this.eventsQueue.removeAll  = removeAll;
+
+        /*========================================================================
+            PRIVATE
+        ========================================================================*/
 
         function subscribe(eventName, element, subscriberFn){
-
             var knownQueueItem;
-
             for(var i = 0; i < _queue.length; i++){
                 if(_queue[i].eventName === eventName && _queue[i].element === element){
                     _queue[i].events.push(subscriberFn);
@@ -70,6 +74,5 @@
                 _queue[l].publicEvents.unSubscribe();
             }
         }
-
     }
 })();

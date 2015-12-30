@@ -1,19 +1,26 @@
 (function(){
     module.exports = DragDropDependencies;
 
-    function DragDropDependencies(_eventQueues, dragDropTarget){
+    function DragDropDependencies(dragDropTarget){
 
         var _subscribers    = [],
             focusClassName  = 'drag-over';
 
-        _eventQueues.subscribe('drop',      dragDropTarget, onDrop);
-        _eventQueues.subscribe('dragover',  dragDropTarget, onDragOver);
-        _eventQueues.subscribe('dragleave', dragDropTarget, onDragLeave);
-        _eventQueues.subscribe('dragenter', dragDropTarget, onDragEnter);
+        /*========================================================================
+            PUBLIC
+        ========================================================================*/
 
-        return {
-            onFileChange:onFileChange
-        };
+        this.dragDrop = {};
+        this.dragDrop.onFileChange = onFileChange;
+
+        /*========================================================================
+            PRIVATE
+        ========================================================================*/
+
+        this.eventsQueue.subscribe('drop',      dragDropTarget, onDrop);
+        this.eventsQueue.subscribe('dragover',  dragDropTarget, onDragOver);
+        this.eventsQueue.subscribe('dragleave', dragDropTarget, onDragLeave);
+        this.eventsQueue.subscribe('dragenter', dragDropTarget, onDragEnter);
 
         function onFileChange(fn){
             _subscribers.push(fn);

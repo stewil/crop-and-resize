@@ -3,10 +3,14 @@
 
     function utils(){
 
-        return {
-            bytesToSize:bytesToSize,
-            base64toBlob:base64toBlob
-        };
+        var utils = {};
+
+        utils.bytesToSize   = bytesToSize;
+        utils.base64toBlob  = base64toBlob;
+
+        this.utils = utils;
+
+        return utils;
 
         function bytesToSize(bytes) {
             var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];

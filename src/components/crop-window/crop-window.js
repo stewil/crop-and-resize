@@ -1,39 +1,56 @@
 (function(){
     module.exports = CropWindowDependencies;
 
-    function CropWindowDependencies(_element, _eventQueues, createImgInstance, target){
+    function CropWindowDependencies(_element, createImgInstance, attributes){
 
-        var _hasInit = false,
-            _translate          =   {},
+        var _cropResize         = this,
+            _hasInit            = false,
+            _translate          = {},
             _focusElement,
-            croppedImage        =   document.createElement('img'),
-            isHeld              =   false,
-            mouseStart          =   {},
-            cropWindowElement   =   document.createElement('div'),
-            _handles            =   Handles(),
+            croppedImage        = document.createElement('img'),
+            isHeld              = false,
+            mouseStart          = {},
+            cropWindowElement   = document.createElement('div'),
+            _handles            = Handles(),
             baseWidth,
             baseHeight,
             canvas,
             context;
 
-        return {
-            init    :createCropWindow,
-            updateContext  :updateContext
-        };
+        /*========================================================================
+            PUBLIC
+        ========================================================================*/
+        this.cropWindow               = {};
+        this.cropWindow.init          = createCropWindow;
+        this.cropWindow.updateContext = updateContext;
+
+        /*========================================================================
+            PRIVATE
+        ========================================================================*/
+
+        function getSetRatio(){
+            var setRatio =  attributes['setRatio'] ?  attributes['setRatio'].match(/\d+/gi) : null;
+
+            if(setRatio && setRatio.length > 1){
+                return {
+                    hRatio:setRatio[0] / setRatio[1],
+                    wRatio:setRatio[1] / setRatio[0]
+                }
+            }
+        }
 
         function updateContext(cropData){
             canvas = cropData.canvas;
             context = cropData.context;
         }
 
-
         function createCropWindow(){
 
             if(!_hasInit){
 
-                _eventQueues.subscribe('mousemove', window, onCropMove);
-                _eventQueues.subscribe('mousedown', window, onCropMouseDown);
-                _eventQueues.subscribe('mouseup',   window, onCropMouseUp);
+                _cropResize.eventsQueue.subscribe('mousemove', window, onCropMove);
+                _cropResize.eventsQueue.subscribe('mousedown', window, onCropMouseDown);
+                _cropResize.eventsQueue.subscribe('mouseup',   window, onCropMouseUp);
 
                 cropWindowElement.className = 'cr-crop-window';
 
@@ -46,7 +63,7 @@
                     })();
                 }
 
-                target.appendChild(cropWindowElement);
+                attributes.target.appendChild(cropWindowElement);
 
                 baseHeight  = cropWindowElement.clientHeight;
                 baseWidth   = cropWindowElement.clientWidth;
@@ -184,10 +201,6 @@
         function onCropMouseUp(e){
             isHeld = false;
             _focusElement = null;
-        }
-
-        return function(target, canvas, context){
-
         }
     }
 })();
