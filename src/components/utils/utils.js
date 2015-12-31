@@ -5,8 +5,10 @@
 
         var utils = {};
 
-        utils.bytesToSize   = bytesToSize;
-        utils.base64toBlob  = base64toBlob;
+        utils.bytesToSize     = bytesToSize;
+        utils.base64toBlob    = base64toBlob;
+        utils.ifValue         = ifValue;
+        utils.isClosedElement = isClosedElement;
 
         this.utils = utils;
 
@@ -28,6 +30,41 @@
             }
 
             return new Blob([new Uint8Array(array)], {type: 'image/png'});
+        }
+
+        function ifValue(value){
+
+            return {
+                isElement:isElement()
+            };
+
+            function isElement(){
+                return typeof HTMLElement === "object" ? value instanceof HTMLElement : value && typeof value === "object" && value !== null && value.nodeType === 1 && typeof value.nodeName==="string";
+            }
+        }
+
+        function isClosedElement(element){
+            var closedElements = [
+                'area',
+                'base',
+                'br',
+                'col',
+                'command',
+                'embed',
+                'hr',
+                'img',
+                'input',
+                'keygen',
+                'link',
+                'meta',
+                'param',
+                'source',
+                'track',
+                'wbr'
+                ],
+                closedRegex = new RegExp("^" + closedElements.join("$|^") + "$", 'gi');
+
+            return (closedRegex.test(element.tagName));
         }
     }
 

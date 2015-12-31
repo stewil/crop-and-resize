@@ -18,7 +18,7 @@
             PRIVATE
         ========================================================================*/
 
-        this.eventsQueue.subscribe('change', inputElement, onFileInputChange);
+        this.eventsQueue.subscribe('change', this.settings.fileInput, onFileInputChange);
 
         function storeSubscriber(fn){
             _subscribers.push(fn);

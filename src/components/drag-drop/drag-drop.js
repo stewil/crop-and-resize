@@ -17,10 +17,12 @@
             PRIVATE
         ========================================================================*/
 
-        this.eventsQueue.subscribe('drop',      dragDropTarget, onDrop);
-        this.eventsQueue.subscribe('dragover',  dragDropTarget, onDragOver);
-        this.eventsQueue.subscribe('dragleave', dragDropTarget, onDragLeave);
-        this.eventsQueue.subscribe('dragenter', dragDropTarget, onDragEnter);
+        if(this.settings.dropArea){
+            this.eventsQueue.subscribe('drop',      this.settings.dropArea, onDrop);
+            this.eventsQueue.subscribe('dragover',  this.settings.dropArea, onDragOver);
+            this.eventsQueue.subscribe('dragleave', this.settings.dropArea, onDragLeave);
+            this.eventsQueue.subscribe('dragenter', this.settings.dropArea, onDragEnter);
+        }
 
         function onFileChange(fn){
             _subscribers.push(fn);

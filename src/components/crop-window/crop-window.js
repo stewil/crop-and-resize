@@ -1,13 +1,12 @@
 (function(){
     module.exports = CropWindowDependencies;
 
-    function CropWindowDependencies(_element, createImgInstance, attributes){
+    function CropWindowDependencies(){
 
         var _cropResize         = this,
             _hasInit            = false,
             _translate          = {},
             _focusElement,
-            croppedImage        = document.createElement('img'),
             isHeld              = false,
             mouseStart          = {},
             cropWindowElement   = document.createElement('div'),
@@ -29,7 +28,7 @@
         ========================================================================*/
 
         function getSetRatio(){
-            var setRatio =  attributes['setRatio'] ?  attributes['setRatio'].match(/\d+/gi) : null;
+            var setRatio =  _cropResize.settings['setRatio'] ?  _cropResize.settings['setRatio'].match(/\d+/gi) : null;
 
             if(setRatio && setRatio.length > 1){
                 return {
@@ -40,7 +39,7 @@
         }
 
         function updateContext(cropData){
-            canvas = cropData.canvas;
+            canvas  = cropData.canvas;
             context = cropData.context;
         }
 
@@ -57,13 +56,13 @@
                 for(var i = 0; i < _handles.length; i++){
                     (function(){
                         var cropHandle = document.createElement('div');
-                        cropHandle.className = "cr-crop-handle cr-" + _handles[i].class;
-                        _handles[i].element = cropHandle;
+                        cropHandle.className    = "cr-crop-handle cr-" + _handles[i].class;
+                        _handles[i].element     = cropHandle;
                         cropWindowElement.appendChild(cropHandle);
                     })();
                 }
 
-                attributes.target.appendChild(cropWindowElement);
+                _cropResize.settings.cropArea.appendChild(cropWindowElement);
 
                 baseHeight  = cropWindowElement.clientHeight;
                 baseWidth   = cropWindowElement.clientWidth;
@@ -167,7 +166,7 @@
                     newWidth,
                     newHeight);
 
-            createImgInstance(newImgData, croppedImage, _element.parentNode, newWidth, newHeight);
+            _cropResize.preview.createImgInstance(newImgData, newWidth, newHeight);
         }
 
         function onCropMouseDown(e){
