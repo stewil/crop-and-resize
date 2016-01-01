@@ -11,8 +11,8 @@
             PUBLIC
         ========================================================================*/
 
-        this.fileInput              = {};
-        this.fileInput.onFileChange = storeSubscriber;
+        this.fileUpload              = {};
+        this.fileUpload.onFileChange = storeSubscriber;
 
         /*========================================================================
             PRIVATE

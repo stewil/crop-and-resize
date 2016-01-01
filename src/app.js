@@ -5,7 +5,9 @@
     function CropResize(fileInput, cropArea, attributes){
 
         var _canvas,
-            _cropResize = {};
+            _cropResize = {
+                information:{}
+            };
 
         /*========================================================================
             PUBLIC
@@ -18,6 +20,7 @@
         ========================================================================*/
         require('./components/utils/utils.js').call(_cropResize);
         require('./components/settings/settings.js').call(_cropResize, fileInput, cropArea, attributes);
+        require('./components/information/information.js').call(_cropResize);
         require('./components/preview/preview.js').call(_cropResize);
         require('./components/events-queue/events-queue.js').call(_cropResize);
         require('./components/drag-drop/drag-drop.js').call(_cropResize);
@@ -25,10 +28,11 @@
         require('./components/crop-area/crop-area.js').call(_cropResize);
         require('./components/file-upload/file-upload.js').call(_cropResize);
 
-        _cropResize.fileInput.onFileChange(onFileProcessed);
+        _cropResize.fileUpload.onFileChange(onFileProcessed);
         _cropResize.dragDrop.onFileChange(onFileProcessed);
 
         function onFileProcessed(file){
+
             if(_canvas){
                 _canvas.changeFile(file);
             }else{
@@ -60,6 +64,13 @@
 
         function getInfo(){
 
+            var croppedImage            = _cropResize.information.croppedImage,
+                originalImage           = _cropResize.information.originalImage;
+
+            croppedImage['file']        = _cropResize.utils.base64toBlob(croppedImage.src);
+            croppedImage['fileSize']    = _cropResize.utils.base64toBlob(croppedImage.file);
+
+            return _cropResize.information;
         }
 
         function remove(){
