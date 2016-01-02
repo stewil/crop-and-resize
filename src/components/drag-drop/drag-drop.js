@@ -1,9 +1,10 @@
 (function(){
     module.exports = DragDropDependencies;
 
-    function DragDropDependencies(dragDropTarget){
+    function DragDropDependencies(){
 
-        var _subscribers    = [],
+        var _cropResize     = this,
+            _subscribers    = [],
             focusClassName  = 'drag-over';
 
         /*========================================================================
@@ -40,7 +41,6 @@
                     _subscribers[totalSubscribers](data[totalSubscribers]);
                 }
             }
-
         }
 
         function onDragOver(evt) {
@@ -50,11 +50,11 @@
         }
 
         function onDragEnter(evt){
-            dragDropTarget.classList.add(focusClassName);
+            _cropResize.settings.dropArea.classList.add(focusClassName);
         }
 
         function onDragLeave(evt){
-            dragDropTarget.classList.remove(focusClassName);
+            _cropResize.settings.dropArea.classList.remove(focusClassName);
         }
 
     }
