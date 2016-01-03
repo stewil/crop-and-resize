@@ -32,26 +32,27 @@ var packageJson     =   require('./package.json'),
 gulp.task('debug', bundleDebug);
 gulp.task('build', bundleBuild);
 gulp.task('watch', ['debug'], serve);
+gulp.task("reload", reloadBrowser);
 gulp.task("bumpPackage", bumpPackage);
 gulp.task("bumpBowerPackage", bumpBowerPackage);
 
 //  JAVASCRIPT
 //-----------------------------------------------------------------------
-gulp.task("debugJS", debugJS);
-gulp.task("buildJS", buildJS);
-gulp.task('reloadJS', ['debug'], reloadBrowser);
+gulp.task("debugJS",  debugJS);
+gulp.task("buildJS",  buildJS);
+gulp.task('reloadJS', reloadJS);
 
 //  SASS
 //-----------------------------------------------------------------------
-gulp.task("buildSASS", buildSASS);
-gulp.task("debugSASS", debugSASS);
-gulp.task('reloadSASS', ['debug'], reloadBrowser);
+gulp.task("buildSASS",  buildSASS);
+gulp.task("debugSASS",  debugSASS);
+gulp.task('reloadSASS', reloadSASS);
 
 //  HTML
 //-----------------------------------------------------------------------
-gulp.task("debugHTML", debugHTML);
-gulp.task("buildHTML", buildHTML);
-gulp.task('reloadHTML', ['debug'], reloadBrowser);
+gulp.task("debugHTML",  debugHTML);
+gulp.task("buildHTML",  buildHTML);
+gulp.task('reloadHTML', reloadHTML);
 
 /*========================================================================
  FUNCTIONS
@@ -78,11 +79,11 @@ function bundle(dir, taskPrefix){
 }
 
 function bundleBuild(){
-    return bundle(config.dist, 'build')
+    return bundle(config.dist, 'build');
 }
 
 function bundleDebug(){
-    return bundle(config.debug, 'debug')
+    return bundle(config.debug, 'debug');
 }
 
 function createHtml(dir){
@@ -94,8 +95,13 @@ function createHtml(dir){
 function buildHTML(){
     return createHtml(config.dist);
 }
+
 function debugHTML(){
     return createHtml(config.debug);
+}
+
+function reloadHTML(){
+    return runSequence(['debugHTML'], ['reload']);
 }
 
 function compileJS(dir) {
@@ -117,8 +123,13 @@ function compileJS(dir) {
 function debugJS(){
     return compileJS(config.debug);
 }
+
 function buildJS(){
     return compileJS(config.dist);
+}
+
+function reloadJS(){
+    return runSequence(['debugJS'], ['reload']);
 }
 
 function compileSASS(dir) {
@@ -137,6 +148,10 @@ function buildSASS(){
 
 function debugSASS(){
     return compileSASS(config.debug);
+}
+
+function reloadSASS(){
+    return runSequence(['debugSASS'], ['reload']);
 }
 
 function bumpPackage(){

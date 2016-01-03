@@ -32,7 +32,7 @@ var GulpConfig = (function () {
         this.application = this.source + 'app.js';
 
         this.javascriptModules = [
-            this.source + 'app.js',
+            this.source + '*.js',
             this.source + '**/*.js'
         ];
 
