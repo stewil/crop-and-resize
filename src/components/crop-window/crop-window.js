@@ -7,7 +7,6 @@
             _hasInit            = false,
             _translate          = {},
             _focusElement,
-            isHeld              = false,
             mouseStart          = {},
             cropWindowElement   = document.createElement('div'),
             _handles            = Handles(),
@@ -23,6 +22,7 @@
         this.cropWindow               = {};
         this.cropWindow.init          = createCropWindow;
         this.cropWindow.updateContext = updateContext;
+        this.cropWindow.isHeld        = false;
 
         /*========================================================================
             PRIVATE
@@ -33,8 +33,8 @@
 
             if(setRatio && setRatio.length > 1){
                 return {
-                    hRatio:setRatio[0] / setRatio[1],
-                    wRatio:setRatio[1] / setRatio[0]
+                    hRatio : setRatio[0] / setRatio[1],
+                    wRatio : setRatio[1] / setRatio[0]
                 }
             }
         }
@@ -71,30 +71,9 @@
             }
         }
 
-        function Handles(){
-
-            return [
-                handleObject('handle-top-left'),
-                handleObject('handle-top-center'),
-                handleObject('handle-top-right'),
-                handleObject('handle-right-middle'),
-                handleObject('handle-bottom-right'),
-                handleObject('handle-bottom-center'),
-                handleObject('handle-bottom-left'),
-                handleObject('handle-left-middle'),
-                handleObject('center-point')
-            ];
-
-            function handleObject(className){
-                return {
-                    "class":className
-                }
-            }
-        }
-
         function onCropMove(e){
 
-            if(isHeld){
+            if(_cropResize.cropWindow.isHeld){
 
                 var maxLeft         = cropWindowElement.offsetLeft * -1,
                     maxTop          = cropWindowElement.offsetTop * -1,
@@ -104,6 +83,8 @@
                     canvasHeight    = canvas.cHeight,
                     newX            = (_translate.x + Number(e.x - mouseStart.x)),
                     newY            = (_translate.y + Number(e.y - mouseStart.y)),
+                    newWidth        = cropWindowElement.offsetWidth,
+                    newHeight       = cropWindowElement.offsetHeight,
                     maxHeight,
                     maxWidth;
 
@@ -123,42 +104,42 @@
                 if(_focusElement === cropWindowElement){
                     cropWindowElement.style.transform = "translate(" + newX + "px, " + newY + "px)";
                 }else{
+
+                    if(_focusElement.class.match(/left/g)){
+                        maxWidth    = canvasWidth - (canvasWidth - (_translate.width + (cropWindowElement.offsetLeft + _translate.x)));
+                    }
+                    if(_focusElement.class.match(/right/g)){
+                        maxWidth    = canvasWidth - (cropWindowElement.offsetLeft + _translate.x);
+                        newWidth    = Math.min(_translate.width + (e.x - mouseStart.x), maxWidth);
+                    }
+                    if(_focusElement.class.match(/bottom/g)){
+                        maxHeight   = canvasHeight - (cropWindowElement.offsetTop + _translate.y);
+                        newHeight   = Math.min((_translate.height + (e.y - mouseStart.y)), maxHeight);
+                    }
+                    if(_focusElement.class.match(/top/g)){
+                        maxHeight   = canvasHeight - (canvasHeight - (_translate.height + (cropWindowElement.offsetTop + _translate.y)));
+                    }
                     if(_focusElement.class.match(/top-left/g)){
-                        applyCalculations('width', (_translate.width - (e.x - mouseStart.x)));
-                        applyCalculations('height', (_translate.height - (e.y - mouseStart.y)), function(){
+                        newWidth    = Math.min(_translate.width - (e.x - mouseStart.x), maxWidth);
+                        newHeight   = Math.min((_translate.height - (e.y - mouseStart.y)), maxHeight);
+                    }else if(_focusElement.class.match(/top/g)){
+                        newHeight   = Math.min((_translate.height - (e.y - mouseStart.y)), maxHeight);
+                        newX        = _translate.x;
+                    }else if(_focusElement.class.match(/left/g)){
+                        newWidth    = Math.min(_translate.width - (e.x - mouseStart.x), maxWidth);
+                        newY        = _translate.y;
+                    }
+
+                    if(newWidth > 0 && newHeight > 0){
+                        cropWindowElement.style.width  = newWidth;
+                        cropWindowElement.style.height = newHeight;
+                        if(_focusElement.class.match(/left|top/g)){
                             cropWindowElement.style.transform = "translate(" + newX + "px, " + newY + "px)";
-                        });
-                    }else{
-                        if(_focusElement.class.match(/top/g)){
-                            applyCalculations('height', (_translate.height - (e.y - mouseStart.y)), function(){
-                                cropWindowElement.style.transform = "translate(" + _translate.x + "px, " + newY + "px)";
-                            });
-                        }
-                        if(_focusElement.class.match(/bottom/g)){
-                            maxHeight = canvasHeight - cropWindowElement.offsetTop;
-                            applyCalculations('height', (Math.min(_translate.height + (e.y - mouseStart.y), maxHeight)));
-                        }
-                        if(_focusElement.class.match(/right/g)){
-                            maxWidth = canvasWidth - cropWindowElement.offsetLeft;
-                            applyCalculations('width', (Math.min(_translate.width + (e.x - mouseStart.x), maxWidth)))
-                        }
-                        if(_focusElement.class.match(/left/g)){
-                            applyCalculations('width', (_translate.width - (e.x - mouseStart.x)), function(){
-                                cropWindowElement.style.transform = "translate(" + newX + "px, " + _translate.y + "px)";
-                            });
                         }
                     }
+
                 }
                 generatePreviewDimensions();
-            }
-
-            function applyCalculations(key, value, fn){
-                if(value > 0){
-                    cropWindowElement.style[key] = value;
-                    if(fn){
-                        fn();
-                    }
-                }
             }
         }
 
@@ -190,15 +171,14 @@
 
                 var transform = (cropWindowElement.style['transform' || 'webkitTransform' || 'mozTransform'] || "").match(/(\d+)|(-\d+)/g) || [];
 
-                isHeld                  =   true;
+                _cropResize.cropWindow.isHeld = true;
                 mouseStart['x']         =   e.x;
                 mouseStart['y']         =   e.y;
                 _translate['x']         =   Number(transform[0] || 0);
                 _translate['y']         =   Number(transform[1] || 0);
-                _translate['width']     =   cropWindowElement.clientWidth;
-                _translate['height']    =   cropWindowElement.clientHeight;
-
-                _focusElement = null;
+                _translate['width']     =   cropWindowElement.offsetWidth;
+                _translate['height']    =   cropWindowElement.offsetHeight;
+                _focusElement           =   null;
 
                 if(e.target === cropWindowElement || e.target.className.match(/center-point/gi)){
                     _focusElement = cropWindowElement;
@@ -214,8 +194,29 @@
         }
 
         function onCropMouseUp(e){
-            isHeld          = false;
+            _cropResize.cropWindow.isHeld = false;
             _focusElement   = null;
+        }
+
+        function Handles(){
+
+            return [
+                handleObject('handle-top-left'),
+                handleObject('handle-top-center'),
+                handleObject('handle-top-right'),
+                handleObject('handle-right-middle'),
+                handleObject('handle-bottom-right'),
+                handleObject('handle-bottom-center'),
+                handleObject('handle-bottom-left'),
+                handleObject('handle-left-middle'),
+                handleObject('center-point')
+            ];
+
+            function handleObject(className){
+                return {
+                    "class":className
+                }
+            }
         }
     }
 })();

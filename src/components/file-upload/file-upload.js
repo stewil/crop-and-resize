@@ -3,7 +3,7 @@
 
     module.exports = FileInput;
 
-    function FileInput(inputElement){
+    function FileInput(){
 
         var _subscribers    = [];
 
@@ -37,18 +37,9 @@
             var files       = this.files;
 
             for(var file in files){
-                if(typeof files[file] === 'object' && files[file].type.match('image.*')){
-                    return onFileChosen(files[file]);
+                if(files[file] instanceof Blob){
+                    return notifySubscribers(files[file]);
                 }
-            }
-        }
-
-        function onFileChosen(file){
-            var reader = new FileReader();
-            reader.onload = onReaderLoad;
-            reader.readAsDataURL(file);
-            function onReaderLoad(e){
-                notifySubscribers(e.target.result);
             }
         }
     }

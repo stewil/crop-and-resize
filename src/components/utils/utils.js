@@ -9,6 +9,7 @@
         utils.base64toBlob    = base64toBlob;
         utils.ifValue         = ifValue;
         utils.isClosedElement = isClosedElement;
+        utils.fileToBase64    = fileToBase64;
 
         this.utils = utils;
 
@@ -19,6 +20,15 @@
             if (bytes == 0) return '0 Byte';
             var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
             return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+        }
+
+        function fileToBase64(file, fn){
+            var reader = new FileReader();
+            reader.onload = onReaderLoad;
+            reader.readAsDataURL(file);
+            function onReaderLoad(e){
+                fn(e.target.result);
+            }
         }
 
         function base64toBlob(base64String){

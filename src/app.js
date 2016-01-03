@@ -5,9 +5,7 @@
     function CropResize(fileInput, cropArea, attributes){
 
         var _canvas,
-            _cropResize = {
-                information:{}
-            };
+            _cropResize = {};
 
         /*========================================================================
             PUBLIC

@@ -30,23 +30,27 @@
         }
 
         function onDrop(evt){
-            evt.stopPropagation();
-            evt.preventDefault();
+            if(!_cropResize.cropWindow.isHeld){
+                evt.preventDefault();
 
-            var data             = evt.dataTransfer.files,
-                totalSubscribers = _subscribers.length;
+                var data             = evt.dataTransfer.files,
+                    totalSubscribers = _subscribers.length;
 
-            while(totalSubscribers--){
-                if(_subscribers[totalSubscribers] && typeof _subscribers[totalSubscribers] === 'function'){
-                    _subscribers[totalSubscribers](data[totalSubscribers]);
+                if(data[0] instanceof Blob){
+                    while(totalSubscribers--){
+                        if(_subscribers[totalSubscribers] && typeof _subscribers[totalSubscribers] === 'function'){
+                            _subscribers[totalSubscribers](data[0]);
+                        }
+                    }
                 }
             }
         }
 
         function onDragOver(evt) {
-            evt.stopPropagation();
-            evt.preventDefault();
-            evt.dataTransfer.dropEffect = 'copy';
+            if(!_cropResize.cropWindow.isHeld){
+                evt.preventDefault();
+                evt.dataTransfer.dropEffect = 'copy';
+            }
         }
 
         function onDragEnter(evt){

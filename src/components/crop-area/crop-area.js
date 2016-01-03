@@ -3,8 +3,9 @@
 
     function CanvasDependencies() {
         
-        var _onChangeQueue  =   [],
-            _image          =   new Image(),
+        var _cropResize     = this,
+            _onChangeQueue  = [],
+            _image          = new Image(),
             _source,
             _canvas,
             _canvasElement,
@@ -27,7 +28,9 @@
         function init(canvasElement, file){
             _canvasElement  =   canvasElement;
             _context        =   _canvasElement.getContext('2d');
-            _image.src      =   file;
+            _cropResize.utils.fileToBase64(file, function (src) {
+                _image.src  =   src;
+            });
             return {
                 onChange:storeOnChange,
                 changeFile:changeFile
@@ -35,13 +38,15 @@
         }
 
         function changeFile(file){
-            _image.src      =   file;
+            _cropResize.utils.fileToBase64(file, function (src) {
+                _image.src = src;
+            });
         }
 
         function onCanvasSrcLoad(e){
 
-            _source         =   {};
-            _canvas         =   {};
+            _source           = {};
+            _canvas           = {};
 
             _source['width']  = this.width;
             _source['height'] = this.height;
@@ -49,7 +54,7 @@
             _canvas['width']  = _canvasElement.width;
             _canvas['height'] = _canvasElement.height;
 
-            var canvasParams = measureContext();
+            var canvasParams  = measureContext();
 
             _context.clearRect(0, 0, _canvas.width, _canvas.height);
             _context.drawImage(_image,
@@ -89,8 +94,8 @@
 
                 _canvas['top']      = canvasBounding.top;
                 _canvas['left']     = canvasBounding.left;
-                _canvas['cWidth']   = _canvasElement.clientWidth;
-                _canvas['cHeight']  = _canvasElement.clientHeight;
+                _canvas['cWidth']   = _canvasElement.offsetWidth;
+                _canvas['cHeight']  = _canvasElement.offsetHeight;
             }
         }
 
