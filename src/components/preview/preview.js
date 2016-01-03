@@ -21,10 +21,13 @@
 
             src = buffer.toDataURL('image/png', 1);
 
-            _cropResize.settings.previewElement.src     = src;
             _cropResize.information.croppedImage.src    = src;
             _cropResize.information.croppedImage.width  = width;
             _cropResize.information.croppedImage.height = height;
+
+            if(_cropResize.settings.previewElement){
+                _cropResize.settings.previewElement.src = src;
+            }
         }
     }
 })();
