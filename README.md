@@ -1,19 +1,37 @@
 #Resize & Crop
+A vanilla Javascript library that provides the tools and UI necessary to manipulate an image file in browser.
 
-This is the start of a vanilla solution for image resizing cropping in javascript.
 
 ##Usage
 ```javascript
-var _element    = document.querySelector('#file-uploader'),
-    _cropResize = new CropResize(_element, {
-        target:document.querySelector('[data-cropresize-target]')
+var fileInput   = document.querySelector('input#file-uploader[type="file"]'),
+    cropArea    = document.querySelector('[data-cropresize-target]'),
+    cropResize  = CropResize(fileInput, cropArea, {
+        dropArea        :   document.querySelector('[data-drag-drop-target]'),
+        previewElement  :   document.querySelector('[data-cr-preview]')
     });
 ```
 
-##API
-| Name        | Type        | Description           | Example  |
-| ------------- | ------------- | ------------- | ----- |
-| remove | function | Removes the class and unbinds all event listeners |  |
+##CropResize(fileInput, cropArea, settings):ICropResizeInterface
+| Name        | Type        | Description           |
+| ------------- | ------------- | ------------- |
+| fileInput | element | File input element required for uploading files into the ui. |
+| cropArea | element | The element that will be used for file cropping. May be a canvas element or any open (<></>) tag element. |
+| settings | object | And object of optional arguments that may be supplied to the initializer.  |
+
+##ICropResizeInterface
+| Name        | Type        | Description           |
+| ------------- | ------------- | ------------- |
+| remove | function() | Removes the class and unbinds all event listeners |
+| getInfo | function():IInformationInterface |  |
+
+##Settings
+| Name        | Type        | Description           |
+| ------------- | ------------- | ------------- |
+| dropArea | element | An element that will trigger a file load on drag/drop. |
+| previewElement | element | An <img/> element that will have it's src updated with the cropped image data. |
+
+##IInformationInterface
 
 ##License
 See [LICENSE](https://github.com/stewil/crop-resize/blob/master/LICENSE.txt).

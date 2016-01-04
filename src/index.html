@@ -28,14 +28,12 @@
     </div>
     <script src="./js/<%= name %>.min.js"></script>
     <script type="application/javascript">
-        var fileInput   = document.querySelector('#file-uploader'),
+        var fileInput   = document.querySelector('input#file-uploader[type="file"]'),
            cropArea     = document.querySelector('[data-cropresize-target]'),
            cropResize   = CropResize(fileInput, cropArea, {
                 dropArea        :   document.querySelector('[data-drag-drop-target]'),
-                previewElement  :   document.querySelector('[data-cr-preview]'),
-                setRatio        :   "16:9"
+                previewElement  :   document.querySelector('[data-cr-preview]')
            });
-
     </script>
 </body>
 </html>
