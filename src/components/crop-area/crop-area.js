@@ -32,8 +32,8 @@
                 _image.src  =   src;
             });
             return {
-                onChange:storeOnChange,
-                changeFile:changeFile
+                onChange    : storeOnChange,
+                changeFile  : changeFile
             };
         }
 
@@ -44,6 +44,10 @@
         }
 
         function onCanvasSrcLoad(e){
+            //Without a set size on the canvas the image data context with render at it's default dimensions of 300x150.
+            //CSS will then scale the scaled down image data up to the size that it calculates for the DOM. 
+            _canvasElement.width    = _canvasElement.offsetWidth;
+            _canvasElement.height   = _canvasElement.offsetHeight;
 
             _source           = {};
             _canvas           = {};
