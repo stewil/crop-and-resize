@@ -6,9 +6,9 @@
         var _cropResize     = this,
             _onChangeQueue  = [],
             _image          = new Image(),
+            _canvasElement,
             _source,
             _canvas,
-            _canvasElement,
             _context;
 
         /*========================================================================
@@ -25,12 +25,25 @@
 
         this.eventsQueue.subscribe('resize', window, cacheCanvasDimensions);
 
-        function init(canvasElement, file){
-            _canvasElement  =   canvasElement;
-            _context        =   _canvasElement.getContext('2d');
-            _cropResize.utils.fileToBase64(file, function (src) {
-                _image.src  =   src;
-            });
+        function init(file){
+
+            var cropArea    = _cropResize.settings.cropArea,
+                tagName     = cropArea.tagName.toLocaleLowerCase();
+
+            if(cropArea && !_cropResize.utils.isClosedElement(cropArea)){
+                if(tagName !== "canvas"){
+                    _canvasElement = document.createElement('canvas');
+                    cropArea.appendChild(_canvasElement);
+                }else{
+                    _canvasElement = cropArea;
+                }
+
+                _context        =   _canvasElement.getContext('2d');
+                _cropResize.utils.fileToBase64(file, function (src) {
+                    _image.src  =   src;
+                });
+            }
+
             return {
                 onChange    : storeOnChange,
                 changeFile  : changeFile
@@ -45,7 +58,7 @@
 
         function onCanvasSrcLoad(e){
             //Without a set size on the canvas the image data context with render at it's default dimensions of 300x150.
-            //CSS will then scale the scaled down image data up to the size that it calculates for the DOM. 
+            //CSS will then scale the scaled down image data up to the size that it calculates for the DOM.
             _canvasElement.width    = _canvasElement.offsetWidth;
             _canvasElement.height   = _canvasElement.offsetHeight;
 

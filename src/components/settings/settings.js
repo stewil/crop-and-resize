@@ -22,7 +22,11 @@
 
         //CROP AREA
         if(this.utils.ifValue(cropArea).isElement && body.contains(cropArea)){
-            this.settings.cropArea = cropArea;
+            if(!this.utils.isClosedElement(cropArea)){
+                this.settings.cropArea = cropArea;
+            }else{
+                throw "Unable to add child element canvas to element type '" + tagName + "'."
+            }
         }else{
             throw "Invalid 'cropArea' element supplied to cropResize. Please ensure element is available in the DOM.";
         }

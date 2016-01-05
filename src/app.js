@@ -34,29 +34,11 @@
             if(_canvas){
                 _canvas.changeFile(file);
             }else{
-
-                var cropArea    = _cropResize.settings.cropArea,
-                    tagName     = cropArea ? cropArea.tagName : "undefined",
-                    canvasElement;
-
-                if(cropArea && !_cropResize.utils.isClosedElement(cropArea)){
-
-                    if(cropArea && cropArea.tagName.toLowerCase() === "canvas"){
-                        canvasElement = cropArea;
-                    }else {
-                        canvasElement = document.createElement('canvas');
-                        cropArea.appendChild(canvasElement);
-                    }
-
-                    _canvas = _cropResize.cropArea.init(canvasElement, file);
-                    _canvas.onChange(function(canvasData){
-                        _cropResize.cropWindow.init();
-                        _cropResize.cropWindow.updateContext(canvasData);
-                    });
-
-                }else{
-                    throw "Unable to add child element canvas to element type '" + tagName + "'."
-                }
+                _canvas = _cropResize.cropArea.init(file);
+                _canvas.onChange(function(canvasData){
+                    _cropResize.cropWindow.init();
+                    _cropResize.cropWindow.updateContext(canvasData);
+                });
             }
         }
 
