@@ -73,6 +73,9 @@
 
             var canvasParams  = measureContext();
 
+            _canvas['widthRatio']   = (canvasParams.dWidth / _canvas['width']);
+            _canvas['heightRatio']  = (canvasParams.dHeight / _canvas['height']);
+
             _context.clearRect(0, 0, _canvas.width, _canvas.height);
             _context.drawImage(_image,
                 canvasParams.sx,

@@ -75,10 +75,13 @@
 
             if(_cropResize.cropWindow.isHeld){
 
-                var maxLeft         = cropWindowElement.offsetLeft * -1,
-                    maxTop          = cropWindowElement.offsetTop * -1,
-                    maxRight        = cropWindowElement.offsetLeft - (cropWindowElement.clientWidth - baseWidth),
-                    maxBottom       = cropWindowElement.offsetTop - (cropWindowElement.clientHeight - baseHeight),
+                var pixelHeight     = canvas.cHeight * canvas.heightRatio,
+                    widthOffset     = canvas.cWidth - (canvas.cWidth * canvas.widthRatio),
+                    heightOffset    = canvas.cHeight - pixelHeight,
+                    maxLeft         = (cropWindowElement.offsetLeft * -1) + (widthOffset / 2),
+                    maxTop          = (cropWindowElement.offsetTop * -1) + (heightOffset / 2),
+                    maxRight        = (cropWindowElement.offsetLeft - (cropWindowElement.clientWidth - baseWidth)) - (widthOffset / 2),
+                    maxBottom       = (cropWindowElement.offsetTop - (cropWindowElement.clientHeight - baseHeight)) - (heightOffset / 2),
                     canvasWidth     = canvas.cWidth,
                     canvasHeight    = canvas.cHeight,
                     newX            = (_translate.x + Number(e.x - mouseStart.x)),
@@ -113,11 +116,11 @@
                         newWidth    = Math.min(_translate.width + (e.x - mouseStart.x), maxWidth);
                     }
                     if(_focusElement.class.match(/bottom/g)){
-                        maxHeight   = canvasHeight - (cropWindowElement.offsetTop + _translate.y);
+                        maxHeight   = (canvasHeight - (cropWindowElement.offsetTop + _translate.y));
                         newHeight   = Math.min((_translate.height + (e.y - mouseStart.y)), maxHeight);
                     }
                     if(_focusElement.class.match(/top/g)){
-                        maxHeight   = canvasHeight - (canvasHeight - (_translate.height + (cropWindowElement.offsetTop + _translate.y)));
+                        maxHeight   = (canvasHeight - (canvasHeight - (_translate.height + (cropWindowElement.offsetTop + _translate.y))));
                     }
                     if(_focusElement.class.match(/top-left/g)){
                         newWidth    = Math.min(_translate.width - (e.x - mouseStart.x), maxWidth);
