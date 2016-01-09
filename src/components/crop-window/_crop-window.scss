@@ -1,61 +1,44 @@
+@import "../../base/settings";
+@import "../../base/mixins";
+
 .cr-crop-window{
     position: absolute;
     width: 200px;
     height: 200px;
-    border: 2px dashed white;
+    border: $crop-window-border-width dashed $color;
     cursor: move;
     top: 50%;
     left: 50%;
     margin: -100px 0 0 -100px;
-    .cr-center-point{
-        &::before,
-        &::after{
-            content: "";
-            display: block;
-        }
 
-        &::before{
-            height: 100%;
-            width: 2px;
-            left: 50%;
-        }
-
-        &::after{
-            height: 2px;
-            width: 100%;
-            top: 50%;
-        }
-
-        width: 20px;
-        height: 20px;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translateY(0) translateX(0);
-    }
     .cr-crop-handle{
-        width: 10px;
-        height: 10px;
+        width: $handle-size;
+        height: $handle-size;
         position: absolute;
-        background-color: white;
+        border:1px solid $color;
+        @include animate(transform, 250, easeOutQuad);
+
+        &:hover{
+            transform: scale(1.1);
+        }
 
         &[class*=top]{
-            top: 0;
+            top: -1px;
         }
         &[class*=middle]{
             top: 50%;
         }
         &[class*=bottom]{
-            bottom: 0;
+            bottom: -1px;
         }
         &[class*=center]{
             left: 50%;
         }
         &[class*=right]{
-            right: 0;
+            right: -1px;
         }
         &[class*=left]{
-            left: 0;
+            left: -1px;
         }
 
         &[class*=top-left]{
@@ -90,7 +73,33 @@
             cursor: w-resize;
         }
 
+        &.cr-center-point{
+            border: none;
+            &::before,
+            &::after{
+                content: "";
+                display: none;
+                background-color: $color;
+                position: absolute;
+                border: 1px solid $color;
+            }
 
+            &::before{
+                height: 100%;
+                left: 50%;
+            }
 
+            &::after{
+                width: 100%;
+                top: 50%;
+            }
+
+            width: 20px;
+            height: 20px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translateY(0) translateX(0);
+        }
     }
 }
