@@ -53,6 +53,7 @@
                 _cropResize.eventsQueue.subscribe('mouseup',   window, onCropMouseUp);
 
                 cropWindowElement.className = 'cr-crop-window';
+                cropWindowElement.setAttribute('draggable', 'false');
 
                 for(var i = 0; i < _handles.length; i++){
                     (function(){
@@ -75,9 +76,8 @@
 
             if(_cropResize.cropWindow.isHeld){
 
-                var pixelHeight     = canvas.cHeight * canvas.heightRatio,
-                    widthOffset     = canvas.cWidth - (canvas.cWidth * canvas.widthRatio),
-                    heightOffset    = canvas.cHeight - pixelHeight,
+                var widthOffset     = canvas.cWidth - (canvas.cWidth * canvas.widthRatio),
+                    heightOffset    = canvas.cHeight - (canvas.cHeight * canvas.heightRatio),
                     maxLeft         = (cropWindowElement.offsetLeft * -1) + (widthOffset / 2),
                     maxTop          = (cropWindowElement.offsetTop * -1) + (heightOffset / 2),
                     maxRight        = (cropWindowElement.offsetLeft - (cropWindowElement.clientWidth - baseWidth)) - (widthOffset / 2),
@@ -109,18 +109,18 @@
                 }else{
 
                     if(_focusElement.class.match(/left/g)){
-                        maxWidth    = canvasWidth - (canvasWidth - (_translate.width + (cropWindowElement.offsetLeft + _translate.x)));
+                        maxWidth    = (canvasWidth - (canvasWidth - (_translate.width + (cropWindowElement.offsetLeft + _translate.x)))) - (widthOffset / 2);
                     }
                     if(_focusElement.class.match(/right/g)){
-                        maxWidth    = canvasWidth - (cropWindowElement.offsetLeft + _translate.x);
+                        maxWidth    = (canvasWidth - (cropWindowElement.offsetLeft + _translate.x)) - (widthOffset / 2);
                         newWidth    = Math.min(_translate.width + (e.x - mouseStart.x), maxWidth);
                     }
                     if(_focusElement.class.match(/bottom/g)){
-                        maxHeight   = (canvasHeight - (cropWindowElement.offsetTop + _translate.y));
+                        maxHeight   = (canvasHeight - (cropWindowElement.offsetTop + _translate.y)) - (heightOffset /2);
                         newHeight   = Math.min((_translate.height + (e.y - mouseStart.y)), maxHeight);
                     }
                     if(_focusElement.class.match(/top/g)){
-                        maxHeight   = (canvasHeight - (canvasHeight - (_translate.height + (cropWindowElement.offsetTop + _translate.y))));
+                        maxHeight   = (canvasHeight - (canvasHeight - (_translate.height + (cropWindowElement.offsetTop + _translate.y)))) - (heightOffset /2);
                     }
                     if(_focusElement.class.match(/top-left/g)){
                         newWidth    = Math.min(_translate.width - (e.x - mouseStart.x), maxWidth);
