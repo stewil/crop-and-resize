@@ -7,6 +7,7 @@ var gulp            =   require('gulp'),
     sourcemaps      =   require('gulp-sourcemaps'),
     rename          =   require('gulp-rename'),
     uglify          =   require('gulp-uglify'),
+    beautify        =   require('gulp-beautify'),
     del             =   require('del'),
     fs              =   require('fs'),
     bump            =   require('gulp-bump'),
@@ -111,6 +112,7 @@ function compileJS(dir) {
 
     return jsBundle
         .pipe(source(config.application))
+        .pipe(streamify(beautify({indentSize:2})))
         .pipe(streamify(sourcemaps.init()))
         .pipe(rename(jsFileName + '.js'))
         .pipe(gulp.dest(dir + 'js/'))
