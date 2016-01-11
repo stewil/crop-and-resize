@@ -10,7 +10,7 @@
             mouseStart          = {},
             cropWindowElement   = document.createElement('div'),
             _handles            = Handles(),
-            _setRatio           = getSetRatio(),
+            _setRatio,
             baseWidth,
             baseHeight,
             canvas,
@@ -42,6 +42,10 @@
         function updateContext(cropData){
             canvas  = cropData.canvas;
             context = cropData.context;
+            onCropMove({
+                x:0,
+                y:0
+            }, true);
         }
 
         function createCropWindow(){
@@ -55,6 +59,8 @@
                 cropWindowElement.className = 'cr-crop-window';
                 cropWindowElement.setAttribute('draggable', 'false');
 
+                _setRatio = getSetRatio();
+
                 for(var i = 0; i < _handles.length; i++){
                     (function(){
                         var cropHandle = document.createElement('div');
@@ -66,15 +72,16 @@
 
                 _cropResize.settings.cropArea.appendChild(cropWindowElement);
 
-                baseHeight  = cropWindowElement.clientHeight;
                 baseWidth   = cropWindowElement.clientWidth;
+                baseHeight  = cropWindowElement.clientHeight;
+
                 _hasInit    = true;
             }
         }
 
-        function onCropMove(e){
+        function onCropMove(e, force){
 
-            if(_cropResize.cropWindow.isHeld){
+            if(_cropResize.cropWindow.isHeld || force){
 
                 var widthOffset     = canvas.cWidth - (canvas.cWidth * canvas.widthRatio),
                     heightOffset    = canvas.cHeight - (canvas.cHeight * canvas.heightRatio),
@@ -104,7 +111,7 @@
                     newY = maxBottom;
                 }
 
-                if(_focusElement === cropWindowElement){
+                if(_focusElement === cropWindowElement || force){
                     cropWindowElement.style.transform = "translate(" + newX + "px, " + newY + "px)";
                 }else{
 
