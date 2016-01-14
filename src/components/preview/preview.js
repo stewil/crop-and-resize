@@ -3,9 +3,10 @@
 
     module.exports = Preview;
 
-    function Preview(){
+    function Preview(_settings){
 
-        var _cropResize = this;
+        var _cropResize = this,
+            _utils      = require('../utils/utils.js')();
 
         this.preview                    = {};
         this.preview.createImgInstance  = createImgInstance;
@@ -25,8 +26,12 @@
             _cropResize.information.croppedImage.width  = width;
             _cropResize.information.croppedImage.height = height;
 
-            if(_cropResize.settings.previewElement){
-                _cropResize.settings.previewElement.src = src;
+            if(_settings.previewElement){
+                if(_settings.previewElement.tagName.toLowerCase() === 'img'){
+                    _settings.previewElement.src = src;
+                }else if(!_utils.isClosedElement(_settings.previewElement)){
+                    _settings.previewElement.style.backgroundImage  = "url('" + src + "')";
+                }
             }
         }
     }
