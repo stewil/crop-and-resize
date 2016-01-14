@@ -2,7 +2,7 @@
 
     window['CropResize'] = CropResize;
 
-    function CropResize(fileInput, cropArea, attributes){
+    function CropResize(cropArea, attributes){
 
         var _canvas,
             _cropResize = {};
@@ -17,7 +17,7 @@
             PRIVATE
         ========================================================================*/
         require('./components/utils/utils.js').call(_cropResize);
-        require('./components/settings/settings.js').call(_cropResize, fileInput, cropArea, attributes);
+        require('./components/settings/settings.js').call(_cropResize, cropArea, attributes);
         require('./components/information/information.js').call(_cropResize);
         require('./components/preview/preview.js').call(_cropResize);
         require('./components/events-queue/events-queue.js').call(_cropResize);

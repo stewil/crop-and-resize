@@ -1,7 +1,7 @@
 (function(){
     module.exports = Settings;
     
-    function Settings(fileInput, cropArea, userSettings){
+    function Settings(cropArea, userSettings){
         
         var body = document.querySelector('body');
 
@@ -14,10 +14,8 @@
             setRatio       : null
         };
 
-        if(this.utils.ifValue(fileInput).isElement && body.contains(fileInput)){
-            this.settings.fileInput = fileInput;
-        }else{
-            throw "Invalid 'fileInput' element supplied to cropResize. Please ensure element is available in the DOM.";
+        if(!userSettings.fileInput && !userSettings.dropArea){
+            throw "CropResize is unable to operate without a 'fileInput' or 'dropArea' element.";
         }
 
         //CROP AREA
@@ -25,19 +23,29 @@
             if(!this.utils.isClosedElement(cropArea)){
                 this.settings.cropArea = cropArea;
             }else{
-                throw "Unable to add child element canvas to element type '" + tagName + "'."
+                throw "Unable to add child element canvas to element type '" + cropArea.tagName + "'."
             }
         }else{
             throw "Invalid 'cropArea' element supplied to cropResize. Please ensure element is available in the DOM.";
         }
 
-        //DROP AREA
-        if(userSettings.dropArea && this.utils.ifValue(userSettings.dropArea).isElement){
-            if(body.contains(userSettings.dropArea)){
-                this.settings.dropArea = userSettings.dropArea;
+        if(userSettings.fileInput){
+            if(this.utils.ifValue(userSettings.fileInput).isElement && body.contains(userSettings.fileInput)){
+                this.settings.fileInput = userSettings.fileInput;
+            }else{
+                throw "Invalid 'fileInput' element supplied to cropResize. Please ensure element is available in the DOM.";
             }
-        }else if(userSettings.dropArea === true){
-            this.settings.dropArea = element;
+        }
+
+        //DROP AREA
+        if(userSettings.dropArea){
+            if(this.utils.ifValue(userSettings.dropArea).isElement && body.contains(userSettings.dropArea)){
+                this.settings.dropArea = userSettings.dropArea;
+            }else if(userSettings.dropArea === true){
+                this.settings.dropArea = userSettings.cropArea;
+            }else{
+                throw "Unable to assign parameter " + userSettings.dropArea + " to 'dropArea'. Please ensure value is an element available in the DOM.";
+            }
         }
 
         //PREVIEW ELEMENT
