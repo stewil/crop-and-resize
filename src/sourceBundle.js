@@ -1,0 +1,1 @@
+window['settingsModule'] = require('./components/settings/settings.js');

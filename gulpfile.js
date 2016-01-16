@@ -1,28 +1,29 @@
 'use strict';
 
-var gulp            =   require('gulp'),
-    watch           =   require('gulp-watch'),
-    sass            =   require('gulp-sass'),
-    autoprefixer    =   require('gulp-autoprefixer'),
-    sourcemaps      =   require('gulp-sourcemaps'),
-    rename          =   require('gulp-rename'),
-    uglify          =   require('gulp-uglify'),
-    beautify        =   require('gulp-beautify'),
-    del             =   require('del'),
-    fs              =   require('fs'),
-    bump            =   require('gulp-bump'),
-    ifElse          =   require('gulp-if-else'),
-    runSequence     =   require('run-sequence'),
-    streamify       =   require('gulp-streamify'),
-    source          =   require('vinyl-source-stream'),
-    template        =   require('gulp-template'),
-    browserify      =   require('browserify'),
-    browserSync     =   require('browser-sync').create(),
-    argv            =   require('yargs').argv,
-    Config          =   require('./gulpfile.config');
+var gulp        =   require('gulp'),
+    watch       =   require('gulp-watch'),
+    sass        =   require('gulp-sass'),
+    autoprefixer=   require('gulp-autoprefixer'),
+    sourcemaps  =   require('gulp-sourcemaps'),
+    rename      =   require('gulp-rename'),
+    uglify      =   require('gulp-uglify'),
+    beautify    =   require('gulp-beautify'),
+    concat      =   require('gulp-concat'),
+    del         =   require('del'),
+    fs          =   require('fs'),
+    bump        =   require('gulp-bump'),
+    ifElse      =   require('gulp-if-else'),
+    runSequence =   require('run-sequence'),
+    streamify   =   require('gulp-streamify'),
+    source      =   require('vinyl-source-stream'),
+    template    =   require('gulp-template'),
+    browserify  =   require('browserify'),
+    browserSync =   require('browser-sync').create(),
+    argv        =   require('yargs').argv,
+    Config      =   require('./gulpfile.config');
 
-var packageJson     =   require('./package.json'),
-    config          =   new Config(packageJson);
+var packageJson =   require('./package.json'),
+    config      =   new Config(packageJson);
 
 /*========================================================================
  TASKS
@@ -54,6 +55,13 @@ gulp.task('reloadSASS', reloadSASS);
 gulp.task("debugHTML",  debugHTML);
 gulp.task("buildHTML",  buildHTML);
 gulp.task('reloadHTML', reloadHTML);
+
+//  TESTS
+//-----------------------------------------------------------------------
+gulp.task("runTests",   runTests);
+gulp.task("copyTests",  copyTests);
+gulp.task("copySpecRunner", copySpecRunner);
+gulp.task("compileTestSource", compileTestSource);
 
 /*========================================================================
  FUNCTIONS
@@ -120,6 +128,52 @@ function compileJS(dir) {
         .pipe(rename(jsFileName + '.min.js'))
         .pipe(streamify(sourcemaps.write('.')))
         .pipe(gulp.dest(dir + 'js/'));
+}
+
+function copyTests(){
+    return gulp.src(config.tests)
+        .pipe(rename(function(path){
+            path.dirname = '/spec/'
+        }))
+        .pipe(gulp.dest(config.testsDir))
+}
+
+function copySpecRunner(){
+    return gulp.src(config.testIndex)
+        .pipe(template({version: "0.0.0"}))
+        .pipe(gulp.dest(config.testsDir));
+}
+
+function compileTestSource(){
+    var jsTestBundle = browserify(config.testSourceFiles).bundle();
+
+    return jsTestBundle
+        .pipe(source(config.testSourceFiles))
+        .pipe(gulp.dest(config.testsDir));
+}
+
+function runTests(){
+    return del(config.testsDir + '/*').then(function() {
+        return runSequence(["copySpecRunner","compileTestSource", "copyTests"], serveTests);
+    });
+}
+
+function serveTests(){
+    if (browserSync != null) {
+        browserSync.init({
+            server: {
+                baseDir :"./",
+                index   :"test/" + config.testIndexName
+            }
+        });
+    }else{
+        console.warn("Browser sync not available in your environment.");
+    }
+    gulp.watch(config.tests, function(){
+        return runSequence(["copyTests"], function(){
+            return browserSync.reload()
+        });
+    });
 }
 
 function debugJS(){
@@ -220,4 +274,5 @@ function createBundleName(){
     packageJson = JSON.parse(config);
     return packageJson.name + '-' + packageJson.version;
 }
+
 

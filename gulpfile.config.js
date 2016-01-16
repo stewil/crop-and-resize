@@ -3,10 +3,11 @@
 var GulpConfig = (function () {
     function GulpConfig() {
 
-        this.debug                          =       './debug/';
-        this.dist                           =       './dist/';
-        this.source                         =       './src/';
-        this.bowerFilesSettings             =       {};
+        this.debug               = './debug/';
+        this.dist                = './dist/';
+        this.source              = './src/';
+        this.testsDir            = './test/';
+        this.bowerFilesSettings  = {};
 
         this.scss = [
             this.source + "*.scss",
@@ -32,8 +33,17 @@ var GulpConfig = (function () {
         this.application = this.source + 'app.js';
 
         this.javascriptModules = [
+            "!" + this.source + "testScripts.js",
+            "!" + this.source + '**/*.test.js',
             this.source + '*.js',
             this.source + '**/*.js'
+        ];
+
+        this.testIndexName   = "SpecRunner.html";
+        this.testIndex       = this.source + this.testIndexName;
+        this.testSourceFiles = this.source + "sourceBundle.js";
+        this.tests           = [
+            this.source + '**/*.test.js'
         ];
 
     }
