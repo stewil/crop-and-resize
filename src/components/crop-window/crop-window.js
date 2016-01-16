@@ -10,7 +10,6 @@
             mouseStart          = {},
             cropWindowElement   = document.createElement('div'),
             _handles            = Handles(),
-            _setRatio,
             baseWidth,
             baseHeight,
             canvas,
@@ -27,17 +26,6 @@
         /*========================================================================
             PRIVATE
         ========================================================================*/
-
-        function getSetRatio(){
-            var setRatio =  _cropResize.settings['setRatio'] ?  _cropResize.settings['setRatio'].match(/\d+/gi) : null;
-
-            if(setRatio && setRatio.length > 1){
-                return {
-                    hRatio : setRatio[0] / setRatio[1],
-                    wRatio : setRatio[1] / setRatio[0]
-                }
-            }
-        }
 
         function updateContext(cropData){
             canvas  = cropData.canvas;
@@ -59,8 +47,6 @@
                 cropWindowElement.className = 'cr-crop-window';
                 cropWindowElement.setAttribute('draggable', 'false');
 
-                _setRatio = getSetRatio();
-
                 for(var i = 0; i < _handles.length; i++){
                     (function(){
                         var cropHandle = document.createElement('div');
@@ -74,6 +60,20 @@
 
                 baseWidth   = cropWindowElement.clientWidth;
                 baseHeight  = cropWindowElement.clientHeight;
+
+                //We choose to set the ratio to the smallest size it could be at the give ratio.
+                if(_cropResize.settings.setRatio){
+                    if(_cropResize.settings.setRatio.hRatio > _cropResize.settings.setRatio.wRatio){
+                        baseHeight = (cropWindowElement.clientWidth * _cropResize.settings.setRatio.wRatio);
+                    }else{
+                        baseWidth  = (cropWindowElement.clientHeight * _cropResize.settings.setRatio.hRatio);
+                    }
+                }
+
+                //TODO:Center this and save measurements for reset
+
+                cropWindowElement.style.height = baseHeight + "px";
+                cropWindowElement.style.width  = baseWidth + "px";
 
                 _hasInit    = true;
             }
@@ -115,35 +115,90 @@
                     cropWindowElement.style.transform = "translate(" + newX + "px, " + newY + "px)";
                 }else{
 
-                    if(_focusElement.class.match(/left/g)){
-                        maxWidth    = (canvasWidth - (canvasWidth - (_translate.width + (cropWindowElement.offsetLeft + _translate.x)))) - (widthOffset / 2);
-                    }
-                    if(_focusElement.class.match(/right/g)){
-                        maxWidth    = (canvasWidth - (cropWindowElement.offsetLeft + _translate.x)) - (widthOffset / 2);
-                        newWidth    = Math.min(_translate.width + (e.x - mouseStart.x), maxWidth);
-                    }
-                    if(_focusElement.class.match(/bottom/g)){
-                        maxHeight   = (canvasHeight - (cropWindowElement.offsetTop + _translate.y)) - (heightOffset /2);
-                        newHeight   = Math.min((_translate.height + (e.y - mouseStart.y)), maxHeight);
-                    }
-                    if(_focusElement.class.match(/top/g)){
-                        maxHeight   = (canvasHeight - (canvasHeight - (_translate.height + (cropWindowElement.offsetTop + _translate.y)))) - (heightOffset /2);
-                    }
-                    if(_focusElement.class.match(/top-left/g)){
-                        newWidth    = Math.min(_translate.width - (e.x - mouseStart.x), maxWidth);
-                        newHeight   = Math.min((_translate.height - (e.y - mouseStart.y)), maxHeight);
-                    }else if(_focusElement.class.match(/top/g)){
-                        newHeight   = Math.min((_translate.height - (e.y - mouseStart.y)), maxHeight);
-                        newX        = _translate.x;
-                    }else if(_focusElement.class.match(/left/g)){
-                        newWidth    = Math.min(_translate.width - (e.x - mouseStart.x), maxWidth);
-                        newY        = _translate.y;
+                    if(!_cropResize.settings.setRatio){
+                        if(_focusElement.class.match(/left/g)){
+                            maxWidth    = (canvasWidth - (canvasWidth - (_translate.width + (cropWindowElement.offsetLeft + _translate.x)))) - (widthOffset / 2);
+                        }
+                        if(_focusElement.class.match(/right/g)){
+                            maxWidth    = (canvasWidth - (cropWindowElement.offsetLeft + _translate.x)) - (widthOffset / 2);
+                            newWidth    = Math.min(_translate.width + (e.x - mouseStart.x), maxWidth);
+                        }
+                        if(_focusElement.class.match(/bottom/g)){
+                            maxHeight   = (canvasHeight - (cropWindowElement.offsetTop + _translate.y)) - (heightOffset /2);
+                            newHeight   = Math.min((_translate.height + (e.y - mouseStart.y)), maxHeight);
+                        }
+                        if(_focusElement.class.match(/top/g)){
+                            maxHeight   = (canvasHeight - (canvasHeight - (_translate.height + (cropWindowElement.offsetTop + _translate.y)))) - (heightOffset /2);
+                        }
+                        if(_focusElement.class.match(/top-left/g)){
+                            newWidth    = Math.min(_translate.width - (e.x - mouseStart.x), maxWidth);
+                            newHeight   = Math.min((_translate.height - (e.y - mouseStart.y)), maxHeight);
+                        }else if(_focusElement.class.match(/top/g)){
+                            newHeight   = Math.min((_translate.height - (e.y - mouseStart.y)), maxHeight);
+                            newX        = _translate.x;
+                        }else if(_focusElement.class.match(/left/g)){
+                            newWidth    = Math.min(_translate.width - (e.x - mouseStart.x), maxWidth);
+                            newY        = _translate.y;
+                        }
+                    }else{
+
+
+                        if(_focusElement.class.match(/right-middle|bottom-right/g)){
+                            maxWidth    = (canvasWidth - (cropWindowElement.offsetLeft + _translate.x)) - (widthOffset / 2);
+                            newWidth    = Math.min(_translate.width + (e.x - mouseStart.x), maxWidth);
+                            newHeight   = newWidth * _cropResize.settings.setRatio.wRatio;
+                            newX        = _translate.x;
+                            newY        = _translate.y;
+                            if(_focusElement.class.match(/right-middle/g)){
+                                var maxY = (((canvasWidth - (widthOffset / 2)) - (cropWindowElement.offsetLeft + _translate.width)) * 0.25) * -1;
+                                newY        = Math.max((((e.x - mouseStart.x) * 0.25) * -1), maxY);
+                            }
+                        }
+
+                        if(_focusElement.class.match(/top-left/g)){
+
+                        }else if(_focusElement.class.match(/top-center/g)){
+
+                        }else if(_focusElement.class.match(/top-right/g)){
+
+                        }else if(_focusElement.class.match(/right-bottom/g)){
+
+                        }else if(_focusElement.class.match(/bottom-center/g)){
+
+                        }else if(_focusElement.class.match(/bottom-left/g)){
+
+                        }else if(_focusElement.class.match(/left-middle/g)){
+
+                        }
+
+                        /*if(_focusElement.class.match(/right/g)){
+                            maxWidth  = (canvasWidth - (cropWindowElement.offsetLeft + _translate.x)) - (widthOffset / 2);
+                            newWidth  = Math.min(_translate.width + (e.x - mouseStart.x), maxWidth);
+                            newHeight = newWidth * _cropResize.settings.setRatio.wRatio;
+                            newX = _translate.x;
+                        }
+
+                        if(_focusElement.class.match(/top/g)){
+                            maxHeight = (canvasHeight - (canvasHeight - (_translate.height + (cropWindowElement.offsetTop + _translate.y)))) - (heightOffset /2);
+                            newHeight = Math.min((_translate.height - (e.y - mouseStart.y)), maxHeight);
+                            newWidth  = newHeight * _cropResize.settings.setRatio.hRatio;
+                        }
+
+                        if(_focusElement.class.match(/center/g)){
+                            newX = ((e.y - mouseStart.y) * 0.25) * -1;
+                        }else if(_focusElement.class.match(/middle/g)){
+                            //Needs a maxY
+                            newY = ((e.x - mouseStart.x) * 0.25) * -1;
+                        }*/
+
                     }
 
                     if(newWidth > 0 && newHeight > 0){
                         cropWindowElement.style.width  = newWidth;
                         cropWindowElement.style.height = newHeight;
-                        if(_focusElement.class.match(/left|top/g)){
+                        if(_focusElement.class.match(/left|top/g) && !_cropResize.settings.setRatio){
+                            cropWindowElement.style.transform = "translate(" + newX + "px, " + newY + "px)";
+                        }else if(_cropResize.settings.setRatio){
                             cropWindowElement.style.transform = "translate(" + newX + "px, " + newY + "px)";
                         }
                     }
