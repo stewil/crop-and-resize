@@ -6,7 +6,7 @@
             fileInput : document.createElement('input'),
             dropArea  : document.createElement('div')
         },
-        closedElements = {},
+        closedElements = [],
         closedElementTagNames = [
             'area',
             'base',
@@ -27,7 +27,7 @@
         ];
 
     closedElementTagNames.forEach(function(tagName, index){
-        closedElements[tagName] = document.createElement(tagName);
+        closedElements.push(document.createElement(tagName));
     });
 
     describe("Settings Module", function(){
@@ -45,9 +45,9 @@
                 });
             }).toThrowError(TypeError);
         });
-
+        
         it("will error if 'DropArea' is a closed tag element.", function(){
-            Object.keys(closedElements).forEach(function(element){
+            closedElements.forEach(function(element){
                 expect(function(){
                     settingsModule(elements.cropArea,{
                         dropArea:element
