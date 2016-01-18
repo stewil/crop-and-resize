@@ -5,13 +5,14 @@
     function CropResize(cropArea, attributes){
 
         var _canvas,
-            _cropResize = {};
+            _cropResize = {},
+            _application = {};
 
         /*========================================================================
             PUBLIC
         ========================================================================*/
-        this.remove     = remove;
-        this.getInfo    = getInfo;
+        _application.destroy = destroy;
+        _application.getInfo = getInfo;
 
         /*========================================================================
             PRIVATE
@@ -28,6 +29,8 @@
 
         _cropResize.fileUpload.onFileChange(onFileProcessed);
         _cropResize.dragDrop.onFileChange(onFileProcessed);
+
+        return _application;
 
         function onFileProcessed(file){
 
@@ -47,14 +50,17 @@
             var croppedImage            = _cropResize.information.croppedImage,
                 originalImage           = _cropResize.information.originalImage;
 
-            croppedImage['file']        = _cropResize.utils.base64toBlob(croppedImage.src);
-            croppedImage['fileSize']    = _cropResize.utils.base64toBlob(croppedImage.file);
+            if(croppedImage && croppedImage.src){
+                croppedImage['file']        = _cropResize.utils.base64toBlob(croppedImage.src);
+                croppedImage['fileSize']    = _cropResize.utils.base64toBlob(croppedImage.file);
+            }
 
             return _cropResize.information;
         }
 
-        function remove(){
+        function destroy(){
             _cropResize.eventsQueue.removeAll();
+            _application = null;
         }
     }
 

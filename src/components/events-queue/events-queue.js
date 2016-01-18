@@ -61,7 +61,7 @@
                 }
 
                 if(queueObject.events.length <= 0){
-                    element.removeEventListener(eventName, subscriberFn);
+                    element.removeEventListener(eventName, onEvent);
                     _queue.splice(_queue.indexOf(queueObject), 1);
                 }
             }
@@ -70,7 +70,6 @@
         function removeAll(){
             var l = _queue.length;
             while(l--){
-                _queue[l].events = [];
                 _queue[l].publicEvents.unSubscribe();
             }
         }
