@@ -3,13 +3,15 @@
 
     function CropWindowDependencies(){
 
-        var _cropResize         = this,
-            _hasInit            = false,
-            _translate          = {},
+        var _eventsQueue      = require('../events-queue/events-queue');
+
+        var _cropResize       = this,
+            _hasInit          = false,
+            _translate        = {},
+            cropWindowElement = document.createElement('div'),
+            mouseStart        = {},
+            _handles          = Handles(),
             _focusElement,
-            mouseStart          = {},
-            cropWindowElement   = document.createElement('div'),
-            _handles            = Handles(),
             baseWidth,
             baseHeight,
             canvas,
@@ -40,9 +42,9 @@
 
             if(!_hasInit){
 
-                _cropResize.eventsQueue.subscribe('mousemove', window, onCropMove);
-                _cropResize.eventsQueue.subscribe('mousedown', window, onCropMouseDown);
-                _cropResize.eventsQueue.subscribe('mouseup',   window, onCropMouseUp);
+                _eventsQueue.subscribe('mousemove', window, onCropMove);
+                _eventsQueue.subscribe('mousedown', window, onCropMouseDown);
+                _eventsQueue.subscribe('mouseup',   window, onCropMouseUp);
 
                 cropWindowElement.className = 'cr-crop-window';
                 cropWindowElement.setAttribute('draggable', 'false');

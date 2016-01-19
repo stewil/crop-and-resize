@@ -5,7 +5,9 @@
 
     function FileInput(){
 
-        var _subscribers    = [];
+        var _eventsQueue = require('../events-queue/events-queue.js');
+
+        var _subscribers = [];
 
         /*========================================================================
             PUBLIC
@@ -18,7 +20,7 @@
             PRIVATE
         ========================================================================*/
 
-        this.eventsQueue.subscribe('change', this.settings.fileInput, onFileInputChange);
+        _eventsQueue.subscribe('change', this.settings.fileInput, onFileInputChange);
 
         function storeSubscriber(fn){
             _subscribers.push(fn);

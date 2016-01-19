@@ -21,7 +21,6 @@
         var settings = require('./components/settings/settings.js').call(_cropResize, cropArea, attributes);
         require('./components/information/information.js').call(_cropResize);
         require('./components/preview/preview.js').call(_cropResize, settings);
-        require('./components/events-queue/events-queue.js').call(_cropResize);
         require('./components/drag-drop/drag-drop.js').call(_cropResize);
         require('./components/crop-window/crop-window.js').call(_cropResize);
         require('./components/crop-area/crop-area.js').call(_cropResize);

@@ -3,6 +3,8 @@
 
     function DragDropDependencies(){
 
+        var _eventsQueue    = require('../events-queue/events-queue.js');
+
         var _cropResize     = this,
             _subscribers    = [],
             focusClassName  = 'drag-over';
@@ -19,10 +21,10 @@
         ========================================================================*/
 
         if(this.settings.dropArea){
-            this.eventsQueue.subscribe('drop',      this.settings.dropArea, onDrop);
-            this.eventsQueue.subscribe('dragover',  this.settings.dropArea, onDragOver);
-            this.eventsQueue.subscribe('dragleave', this.settings.dropArea, onDragLeave);
-            this.eventsQueue.subscribe('dragenter', this.settings.dropArea, onDragEnter);
+            _eventsQueue.subscribe('drop',      this.settings.dropArea, onDrop);
+            _eventsQueue.subscribe('dragover',  this.settings.dropArea, onDragOver);
+            _eventsQueue.subscribe('dragleave', this.settings.dropArea, onDragLeave);
+            _eventsQueue.subscribe('dragenter', this.settings.dropArea, onDragEnter);
         }
 
         function onFileChange(fn){

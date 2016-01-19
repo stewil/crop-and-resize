@@ -1,8 +1,10 @@
 (function() {
-    module.exports = CanvasDependencies;
+    module.exports = CropArea;
 
-    function CanvasDependencies() {
-        
+    function CropArea() {
+
+        var _eventsQueue    = require('../events-queue/events-queue.js');
+
         var _cropResize     = this,
             _onChangeQueue  = [],
             _image          = new Image(),
@@ -23,7 +25,7 @@
 
         _image.onload       =   onCanvasSrcLoad;
 
-        this.eventsQueue.subscribe('resize', window, cacheCanvasDimensions);
+        _eventsQueue.subscribe('resize', window, cacheCanvasDimensions);
 
         function init(file){
 

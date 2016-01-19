@@ -1,17 +1,18 @@
 (function(){
-    module.exports = EventsQueue;
+    module.exports = EventsQueue();
 
     function EventsQueue(){
 
-        var _queue      = [];
+        var _queue       = [],
+            _eventsQueue = {};
 
         /*========================================================================
             PUBLIC
         ========================================================================*/
+        _eventsQueue.subscribe  = subscribe;
+        _eventsQueue.removeAll  = removeAll;
 
-        this.eventsQueue            = {};
-        this.eventsQueue.subscribe  = subscribe;
-        this.eventsQueue.removeAll  = removeAll;
+        return _eventsQueue;
 
         /*========================================================================
             PRIVATE
