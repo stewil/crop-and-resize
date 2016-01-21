@@ -1,13 +1,14 @@
 (function() {
-    module.exports = CropArea;
+    module.exports = CropArea();
 
     function CropArea() {
 
-        var _eventsQueue    = require('../events-queue/events-queue.js');
-
-        var _cropResize     = this,
-            _onChangeQueue  = [],
-            _image          = new Image(),
+        var _eventsQueue   = require('../events-queue/events-queue.js'),
+            _utils         = require('../utils/utils.js'),
+            _settings      = require('../settings/settings.js'),
+            _this          = {},
+            _onChangeQueue = [],
+            _image         = new Image(),
             _canvasElement,
             _source,
             _canvas,
@@ -16,23 +17,24 @@
         /*========================================================================
             PUBLIC
         ========================================================================*/
-        this.cropArea       = {};
-        this.cropArea.init  = init;
+
+        _image.onload = onCanvasSrcLoad;
+        _this.init    = init;
+        _eventsQueue.subscribe('resize', window, cacheCanvasDimensions);
+
+
+        return _this;
 
         /*========================================================================
             PRIVATE
         ========================================================================*/
 
-        _image.onload       =   onCanvasSrcLoad;
-
-        _eventsQueue.subscribe('resize', window, cacheCanvasDimensions);
-
         function init(file){
 
-            var cropArea    = _cropResize.settings.cropArea,
+            var cropArea    = _settings.cropArea,
                 tagName     = cropArea.tagName.toLocaleLowerCase();
 
-            if(cropArea && !_cropResize.utils.isClosedElement(cropArea)){
+            if(cropArea && !_utils.isClosedElement(cropArea)){
                 if(tagName !== "canvas"){
                     _canvasElement = document.createElement('canvas');
                     cropArea.appendChild(_canvasElement);
@@ -41,7 +43,7 @@
                 }
 
                 _context        =   _canvasElement.getContext('2d');
-                _cropResize.utils.fileToBase64(file, function (src) {
+                _utils.fileToBase64(file, function (src) {
                     _image.src  =   src;
                 });
             }
@@ -53,7 +55,7 @@
         }
 
         function changeFile(file){
-            _cropResize.utils.fileToBase64(file, function (src) {
+            _utils.fileToBase64(file, function (src) {
                 _image.src = src;
             });
         }
@@ -102,9 +104,9 @@
             while(totalSubscribers--){
                 if(_onChangeQueue[totalSubscribers] && typeof _onChangeQueue[totalSubscribers] === 'function'){
                     _onChangeQueue[totalSubscribers]({
-                        source:_source,
-                        canvas:_canvas,
-                        context:_context
+                        source : _source,
+                        canvas : _canvas,
+                        context: _context
                     });
                 }
             }
@@ -114,27 +116,27 @@
             if(_canvasElement){
                 var canvasBounding = _canvasElement.getBoundingClientRect();
 
-                _canvas['top']      = canvasBounding.top;
-                _canvas['left']     = canvasBounding.left;
-                _canvas['cWidth']   = _canvasElement.offsetWidth;
-                _canvas['cHeight']  = _canvasElement.offsetHeight;
+                _canvas['top']     = canvasBounding.top;
+                _canvas['left']    = canvasBounding.left;
+                _canvas['cWidth']  = _canvasElement.offsetWidth;
+                _canvas['cHeight'] = _canvasElement.offsetHeight;
             }
         }
 
         function measureContext(){
-            var hRatio      =   _canvas.width  / _source.width,
-                vRatio      =   _canvas.height  / _source.height,
-                ratio       =   Math.min( hRatio, vRatio);
+            var hRatio   =   _canvas.width  / _source.width,
+                vRatio   =   _canvas.height  / _source.height,
+                ratio    =   Math.min( hRatio, vRatio);
 
-            return {
-                sx:         0,
-                sy:         0,
-                sWidth:     _source.width,
-                sHeight:    _source.height,
-                dx:         (_canvas.width - _source.width * ratio ) / 2,
-                dy:         (_canvas.height - _source.height * ratio ) / 2,
-                dWidth:     _source.width * ratio,
-                dHeight:    _source.height * ratio
+            return{
+                sx:      0,
+                sy:      0,
+                sWidth:  _source.width,
+                sHeight: _source.height,
+                dx:      (_canvas.width - _source.width * ratio ) / 2,
+                dy:      (_canvas.height - _source.height * ratio ) / 2,
+                dWidth:  _source.width * ratio,
+                dHeight: _source.height * ratio
             }
         }
     }

@@ -1,26 +1,30 @@
 (function(){
     "use strict";
 
-    module.exports = FileInput;
+    module.exports = FileInput();
 
     function FileInput(){
 
-        var _eventsQueue = require('../events-queue/events-queue.js');
-
-        var _subscribers = [];
+        var _eventsQueue = require('../events-queue/events-queue.js'),
+            _settings    = require('../settings/settings.js'),
+            _subscribers = [],
+            _this        = {};
 
         /*========================================================================
             PUBLIC
         ========================================================================*/
 
-        this.fileUpload              = {};
-        this.fileUpload.onFileChange = storeSubscriber;
+        init();
+        _this.onFileChange = storeSubscriber;
 
+        return _this;
         /*========================================================================
             PRIVATE
         ========================================================================*/
 
-        _eventsQueue.subscribe('change', this.settings.fileInput, onFileInputChange);
+        function init(){
+            _eventsQueue.subscribe('change', _settings.fileInput, onFileInputChange);
+        }
 
         function storeSubscriber(fn){
             _subscribers.push(fn);

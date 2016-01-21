@@ -1,30 +1,35 @@
 (function(){
-    module.exports = DragDropDependencies;
+    module.exports = DragDropDependencies();
 
     function DragDropDependencies(){
 
-        var _eventsQueue    = require('../events-queue/events-queue.js');
-
-        var _cropResize     = this,
-            _subscribers    = [],
-            focusClassName  = 'drag-over';
+        var _eventsQueue   = require('../events-queue/events-queue.js'),
+            _settings      = require('../settings/settings.js'),
+            _cropWindow    = require('../crop-window/crop-window.js'),
+            _subscribers   = [],
+            _this          = {},
+            focusClassName = 'drag-over';
 
         /*========================================================================
             PUBLIC
         ========================================================================*/
-
-        this.dragDrop = {};
-        this.dragDrop.onFileChange = onFileChange;
-
+        
+        _this.onFileChange = onFileChange;
+        init();
+        
+        return _this;
+        
         /*========================================================================
             PRIVATE
         ========================================================================*/
 
-        if(this.settings.dropArea){
-            _eventsQueue.subscribe('drop',      this.settings.dropArea, onDrop);
-            _eventsQueue.subscribe('dragover',  this.settings.dropArea, onDragOver);
-            _eventsQueue.subscribe('dragleave', this.settings.dropArea, onDragLeave);
-            _eventsQueue.subscribe('dragenter', this.settings.dropArea, onDragEnter);
+        function init(){
+            if(_settings.dropArea){
+                _eventsQueue.subscribe('drop',      _settings.dropArea, onDrop);
+                _eventsQueue.subscribe('dragover',  _settings.dropArea, onDragOver);
+                _eventsQueue.subscribe('dragleave', _settings.dropArea, onDragLeave);
+                _eventsQueue.subscribe('dragenter', _settings.dropArea, onDragEnter);
+            }
         }
 
         function onFileChange(fn){
@@ -32,7 +37,7 @@
         }
 
         function onDrop(evt){
-            if(!_cropResize.cropWindow.isHeld){
+            if(!_cropWindow.isHeld){
                 evt.preventDefault();
 
                 var data             = evt.dataTransfer.files,
@@ -49,18 +54,18 @@
         }
 
         function onDragOver(evt) {
-            if(!_cropResize.cropWindow.isHeld){
+            if(!_cropWindow.isHeld){
                 evt.preventDefault();
                 evt.dataTransfer.dropEffect = 'copy';
             }
         }
 
         function onDragEnter(evt){
-            _cropResize.settings.dropArea.classList.add(focusClassName);
+            _settings.dropArea.classList.add(focusClassName);
         }
 
         function onDragLeave(evt){
-            _cropResize.settings.dropArea.classList.remove(focusClassName);
+            _settings.dropArea.classList.remove(focusClassName);
         }
 
     }

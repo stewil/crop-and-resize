@@ -5,7 +5,6 @@
     function CropResize(cropArea, attributes){
 
         var _canvas,
-            _cropResize = {},
             _application = {};
 
         /*========================================================================
@@ -17,17 +16,20 @@
         /*========================================================================
             PRIVATE
         ========================================================================*/
-        require('./components/utils/utils.js').call(_cropResize);
-        var settings = require('./components/settings/settings.js').call(_cropResize, cropArea, attributes);
-        require('./components/information/information.js').call(_cropResize);
-        require('./components/preview/preview.js').call(_cropResize, settings);
-        require('./components/drag-drop/drag-drop.js').call(_cropResize);
-        require('./components/crop-window/crop-window.js').call(_cropResize);
-        require('./components/crop-area/crop-area.js').call(_cropResize);
-        require('./components/file-upload/file-upload.js').call(_cropResize);
+        var _settings        = require('./components/settings/settings.js');
 
-        _cropResize.fileUpload.onFileChange(onFileProcessed);
-        _cropResize.dragDrop.onFileChange(onFileProcessed);
+        _settings.bindSettings(cropArea, attributes);
+        var _eventsQueue    = require('./components/events-queue/events-queue.js'),
+            _utils          = require('./components/utils/utils.js'),
+            _information    = require('./components/information/information.js'),
+            _dragDrop       = require('./components/drag-drop/drag-drop.js'),
+            _cropWindow     = require('./components/crop-window/crop-window.js'),
+            _cropArea       = require('./components/crop-area/crop-area.js'),
+            _fileUpload     = require('./components/file-upload/file-upload.js');
+
+
+        _fileUpload.onFileChange(onFileProcessed);
+        _dragDrop.onFileChange(onFileProcessed);
 
         return _application;
 
@@ -36,29 +38,29 @@
             if(_canvas){
                 _canvas.changeFile(file);
             }else{
-                _canvas = _cropResize.cropArea.init(file);
+                _canvas = _cropArea.init(file);
                 _canvas.onChange(function(canvasData){
-                    _cropResize.cropWindow.init();
-                    _cropResize.cropWindow.updateContext(canvasData);
+                    _cropWindow.init();
+                    _cropWindow.updateContext(canvasData);
                 });
             }
         }
 
         function getInfo(){
 
-            var croppedImage            = _cropResize.information.croppedImage,
-                originalImage           = _cropResize.information.originalImage;
+            var croppedImage             = _information.croppedImage,
+                originalImage            = _information.originalImage;
 
             if(croppedImage && croppedImage.src){
-                croppedImage['file']        = _cropResize.utils.base64toBlob(croppedImage.src);
-                croppedImage['fileSize']    = _cropResize.utils.base64toBlob(croppedImage.file);
+                croppedImage['file']     = _utils.base64toBlob(croppedImage.src);
+                croppedImage['fileSize'] = _utils.base64toBlob(croppedImage.file);
             }
 
-            return _cropResize.information;
+            return _information;
         }
 
         function destroy(){
-            _cropResize.eventsQueue.removeAll();
+            _eventsQueue.removeAll();
             _application = null;
         }
     }

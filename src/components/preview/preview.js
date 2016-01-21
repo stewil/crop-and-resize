@@ -1,15 +1,18 @@
 (function(){
     "use strict";
 
-    module.exports = Preview;
+    module.exports = Preview();
 
-    function Preview(_settings){
+    function Preview(){
 
-        var _cropResize = this,
-            _utils      = require('../utils/utils.js')();
+        var _this = {},
+            _utils       = require('../utils/utils.js'),
+            _settings    = require('../settings/settings.js'),
+            _information = require('../information/information.js');
 
-        this.preview                    = {};
-        this.preview.createImgInstance  = createImgInstance;
+        _this.createImgInstance  = createImgInstance;
+
+        return _this;
 
         function createImgInstance(croppedImageData, width, height){
             var buffer          =   document.createElement('canvas'),
@@ -22,17 +25,20 @@
 
             src = buffer.toDataURL('image/png', 1);
 
-            _cropResize.information.croppedImage.src    = src;
-            _cropResize.information.croppedImage.width  = width;
-            _cropResize.information.croppedImage.height = height;
+            if(src){
+                _information.croppedImage.src    = src;
+                _information.croppedImage.width  = width;
+                _information.croppedImage.height = height;
 
-            if(_settings.previewElement){
-                if(_settings.previewElement.tagName.toLowerCase() === 'img'){
-                    _settings.previewElement.src = src;
-                }else if(!_utils.isClosedElement(_settings.previewElement)){
-                    _settings.previewElement.style.backgroundImage  = "url('" + src + "')";
+                if(_settings.previewElement){
+                    if(_settings.previewElement.tagName.toLowerCase() === 'img'){
+                        _settings.previewElement.src = src;
+                    }else if(!_utils.isClosedElement(_settings.previewElement)){
+                        _settings.previewElement.style.backgroundImage  = "url('" + src + "')";
+                    }
                 }
             }
+
         }
     }
 })();

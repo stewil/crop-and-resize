@@ -1,14 +1,16 @@
 (function(){
     "use strict";
 
-    module.exports = Information;
+    module.exports = Information();
 
     function Information(){
 
-        this.information = {
+        var _this = {
             croppedImage :imageInfoObject(),
             originalImage :imageInfoObject()
         };
+
+        return _this;
 
         function imageInfoObject(){
             return{
