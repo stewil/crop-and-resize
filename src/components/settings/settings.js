@@ -28,8 +28,9 @@
 
             /**
              * cropArea value validation.
-             */
-            if(_utils.ifValue(cropArea).isElement && body.contains(cropArea)){
+
+            */
+            if(_utils.ifValue(cropArea).isElement && document.querySelector('body').contains(cropArea)){
                 if(!_utils.isClosedElement(cropArea)){
                     _this.cropArea = cropArea;
                 }else{

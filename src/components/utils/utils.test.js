@@ -1,7 +1,6 @@
 (function(){
 
-    var utils           = utilsModule(),
-        div             = document.createElement('div'),
+    var div             = document.createElement('div'),
         closedElements  = [],
         closedElementTagNames = [
             'area',
