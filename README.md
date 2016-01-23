@@ -28,7 +28,7 @@ var cropArea     = document.querySelector('[data-cropresize-target]'),
 ###ICropResizeInterface
 | Name        | Type        | Description           |
 | ------------- | ------------- | ------------- |
-| remove | function() | Removes the class and unbinds all event listeners |
+| destroy | function() | Removes the class and unbinds all event listeners |
 | getInfo | function():IInformationInterface |  |
 
 ###Settings
@@ -36,7 +36,7 @@ var cropArea     = document.querySelector('[data-cropresize-target]'),
 | ------------- | ------------- | ------------- |
 | fileInput | element | File input element required for uploading files into the ui. |
 | dropArea | element|boolean | An element that will trigger a file load on drag/drop. if set to true will default to the cropArea. |
-| previewElement | element | An <img/> element that will have it's src updated with the cropped image data. |
+| previewElement | element | If this element is an <img/> it's src will get updated, otherwise it will have it's background image set. |
 
 ###IInformationInterface
 

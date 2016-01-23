@@ -12,3 +12,4 @@
 | ------------- | ------------- | ------------- | ----- |
 | watch |  | Compiles files into a temp /debug directory and serves up and instance of browser sync for development |  |
 | build | --patch, --minor --major | Compiles library components and bumps the library version by the supplied argument |  |
+| runTests | | Compiles components into stand alone modules and exports all test files to the '../test/' directory and runs the jasmine js specRunner through browserSync. |  |
