@@ -6,6 +6,7 @@
         var _eventsQueue   = require('../events-queue/events-queue.js'),
             _utils         = require('../utils/utils.js'),
             _settings      = require('../settings/settings.js'),
+            _information   = require('../information/information.js'),
             _this          = {},
             _onChangeQueue = [],
             _image         = new Image(),
@@ -18,10 +19,11 @@
             PUBLIC
         ========================================================================*/
 
-        _image.onload = onCanvasSrcLoad;
-        _this.init    = init;
-        _eventsQueue.subscribe('resize', window, cacheCanvasDimensions);
+        _this.changeFile = changeFile;
+        _this.onChange   = storeOnChange;
 
+        createCanvasElement();
+        bindListeners();
 
         return _this;
 
@@ -29,38 +31,45 @@
             PRIVATE
         ========================================================================*/
 
-        function init(file){
+        function bindListeners(){
+            _image.onload = onCanvasSrcLoad;
+            _eventsQueue.subscribe('resize', window, cacheCanvasDimensions);
+        }
+
+        function createCanvasElement(){
 
             var cropArea    = _settings.cropArea,
                 tagName     = cropArea.tagName.toLocaleLowerCase();
 
-            if(cropArea && !_utils.isClosedElement(cropArea)){
+            if(_settings.cropArea && !_utils.isClosedElement(_settings.cropArea)){
                 if(tagName !== "canvas"){
                     _canvasElement = document.createElement('canvas');
                     cropArea.appendChild(_canvasElement);
                 }else{
-                    _canvasElement = cropArea;
+                    _canvasElement = _settings.cropArea;
                 }
 
                 _context        =   _canvasElement.getContext('2d');
-                _utils.fileToBase64(file, function (src) {
-                    _image.src  =   src;
-                });
             }
-
-            return {
-                onChange    : storeOnChange,
-                changeFile  : changeFile
-            };
         }
 
         function changeFile(file){
             _utils.fileToBase64(file, function (src) {
+                _information.updateProperty('originalImage', {
+                    src  : src,
+                    file : _utils.base64toBlob(src)
+                });
                 _image.src = src;
             });
         }
 
         function onCanvasSrcLoad(e){
+
+            _information.updateProperty('originalImage', {
+                width  : this.width,
+                height : this.height
+            });
+
             //Without a set size on the canvas the image data context with render at it's default dimensions of 300x150.
             //CSS will then scale the scaled down image data up to the size that it calculates for the DOM.
             _canvasElement.width    = _canvasElement.offsetWidth;

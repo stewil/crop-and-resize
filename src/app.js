@@ -4,8 +4,7 @@
 
     function CropResize(cropArea, attributes){
 
-        var _canvas,
-            _application = {};
+        var _application = {};
 
         /*========================================================================
             PUBLIC
@@ -20,43 +19,37 @@
 
         _settings.bindSettings(cropArea, attributes);
         var _eventsQueue    = require('./components/events-queue/events-queue.js'),
-            _utils          = require('./components/utils/utils.js'),
             _information    = require('./components/information/information.js'),
             _dragDrop       = require('./components/drag-drop/drag-drop.js'),
             _cropWindow     = require('./components/crop-window/crop-window.js'),
             _cropArea       = require('./components/crop-area/crop-area.js'),
             _fileUpload     = require('./components/file-upload/file-upload.js');
 
-
         _fileUpload.onFileChange(onFileProcessed);
         _dragDrop.onFileChange(onFileProcessed);
+        _cropArea.onChange(updateCropWindow);
 
         return _application;
 
-        function onFileProcessed(file){
+        function updateCropWindow(canvasData){
+            _cropWindow.init();
+            _cropWindow.updateContext(canvasData);
+        }
 
-            if(_canvas){
-                _canvas.changeFile(file);
-            }else{
-                _canvas = _cropArea.init(file);
-                _canvas.onChange(function(canvasData){
-                    _cropWindow.init();
-                    _cropWindow.updateContext(canvasData);
-                });
-            }
+        function onFileProcessed(file){
+            _information.resetData();
+            _information.updateProperty('originalImage', file);
+            _information.updateProperty('croppedImage', {
+                type:file.type,
+                name:file.name
+            });
+            _cropArea.changeFile(file);
         }
 
         function getInfo(){
+            _information.updateDataFor('croppedImage');
 
-            var croppedImage             = _information.croppedImage,
-                originalImage            = _information.originalImage;
-
-            if(croppedImage && croppedImage.src){
-                croppedImage['file']     = _utils.base64toBlob(croppedImage.src);
-                croppedImage['fileSize'] = _utils.base64toBlob(croppedImage.file);
-            }
-
-            return _information;
+            return _information.getImageData();
         }
 
         function destroy(){
