@@ -26,9 +26,11 @@
             src = buffer.toDataURL('image/png', 1);
 
             if(src){
-                _information.croppedImage.src    = src;
-                _information.croppedImage.width  = width;
-                _information.croppedImage.height = height;
+                _information.updateProperty('croppedImage', {
+                    src    :src,
+                    width  :width,
+                    height :height
+                });
 
                 if(_settings.previewElement){
                     if(_settings.previewElement.tagName.toLowerCase() === 'img'){
