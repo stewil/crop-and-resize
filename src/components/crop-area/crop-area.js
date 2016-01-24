@@ -16,8 +16,8 @@
             _context;
 
         /*========================================================================
-            PUBLIC
-        ========================================================================*/
+         PUBLIC
+         ========================================================================*/
 
         _this.changeFile = changeFile;
         _this.onChange   = storeOnChange;
@@ -28,8 +28,8 @@
         return _this;
 
         /*========================================================================
-            PRIVATE
-        ========================================================================*/
+         PRIVATE
+         ========================================================================*/
 
         function bindListeners(){
             _image.onload = onCanvasSrcLoad;
@@ -39,17 +39,21 @@
         function createCanvasElement(){
 
             var cropArea    = _settings.cropArea,
-                tagName     = cropArea.tagName.toLocaleLowerCase();
+                tagName;
 
-            if(_settings.cropArea && !_utils.isClosedElement(_settings.cropArea)){
-                if(tagName !== "canvas"){
-                    _canvasElement = document.createElement('canvas');
-                    cropArea.appendChild(_canvasElement);
-                }else{
-                    _canvasElement = _settings.cropArea;
+            if(cropArea){
+                tagName = cropArea.tagName.toLocaleLowerCase();
+
+                if(_settings.cropArea && !_utils.isClosedElement(_settings.cropArea)){
+                    if(tagName !== "canvas"){
+                        _canvasElement = document.createElement('canvas');
+                        cropArea.appendChild(_canvasElement);
+                    }else{
+                        _canvasElement = _settings.cropArea;
+                    }
+
+                    _context        =   _canvasElement.getContext('2d');
                 }
-
-                _context        =   _canvasElement.getContext('2d');
             }
         }
 
@@ -107,7 +111,7 @@
         function storeOnChange(fn){
             _onChangeQueue.push(fn);
         }
-        
+
         function notify(){
             var totalSubscribers= _onChangeQueue.length;
             while(totalSubscribers--){
@@ -120,7 +124,7 @@
                 }
             }
         }
-        
+
         function cacheCanvasDimensions(){
             if(_canvasElement){
                 var canvasBounding = _canvasElement.getBoundingClientRect();
