@@ -1,5 +1,4 @@
 'use strict';
-//version 0.1.0 (2015/11/06)
 var GulpConfig = (function () {
     function GulpConfig() {
 
@@ -33,7 +32,7 @@ var GulpConfig = (function () {
         this.application = this.source + 'app.js';
 
         this.javascriptModules = [
-            "!" + this.source + "testScripts.js",
+            "!" + this.source + "sourceBundle.js",
             "!" + this.source + '**/*.test.js',
             this.source + '*.js',
             this.source + '**/*.js'
