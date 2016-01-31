@@ -126,7 +126,7 @@
         }
 
         function cacheCanvasDimensions(){
-            if(_canvasElement){
+            if(_canvasElement && _canvas){
                 var canvasBounding = _canvasElement.getBoundingClientRect();
 
                 _canvas['top']     = canvasBounding.top;

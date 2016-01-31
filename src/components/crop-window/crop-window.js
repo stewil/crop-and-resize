@@ -182,13 +182,13 @@
         function onCropMouseDown(e){
             if(e.target.className.match("-crop-")){
 
-                var transform = (cropWindowElement.style['transform' || 'webkitTransform' || 'mozTransform'] || "").match(/(\d+)|(-\d+)/g) || [];
+                var transform = (window.getComputedStyle(cropWindowElement)['transform' || 'webkitTransform' || 'mozTransform'].match(/(\d+)|(-\d+)/g)) || [];
 
                 _this.isHeld         = true;
                 mouseStart['x']      = e.x;
                 mouseStart['y']      = e.y;
-                _translate['x']      = Number(transform[0] || 0);
-                _translate['y']      = Number(transform[1] || 0);
+                _translate['x']      = Number(transform[4] || 0);
+                _translate['y']      = Number(transform[5] || 0);
                 _translate['width']  = cropWindowElement.offsetWidth;
                 _translate['height'] = cropWindowElement.offsetHeight;
                 _focusElement        = null;
