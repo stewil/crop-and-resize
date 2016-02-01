@@ -115,7 +115,7 @@
                 }
 
                 if(_focusElement === cropWindowElement || force){
-                    cropWindowElement.style.transform = "translate(" + newX + "px, " + newY + "px)";
+                    applyTransform(_translate.scaleX, _translate.skewX, _translate.skewY, _translate.scaleY, newX, newY);
                 }else{
 
                     if(_focusElement.class.match(/left/g)){
@@ -147,13 +147,17 @@
                         cropWindowElement.style.width  = newWidth;
                         cropWindowElement.style.height = newHeight;
                         if(_focusElement.class.match(/left|top/g)){
-                            cropWindowElement.style.transform = "translate(" + newX + "px, " + newY + "px)";
+                            applyTransform(_translate.scaleX, _translate.skewX, _translate.skewY, _translate.scaleY, newX, newY);
                         }
                     }
 
                 }
                 generatePreviewDimensions();
             }
+        }
+
+        function applyTransform(scaleX, skewX, skewY, scaleY, x, y){
+            cropWindowElement.style['transform' || 'webkitTransform' || 'mozTransform'] = "matrix(" + scaleX + "," + skewX + "," + skewY + "," + scaleY + "," + x + ", " + y + ")";
         }
 
         function generatePreviewDimensions(){
@@ -182,11 +186,15 @@
         function onCropMouseDown(e){
             if(e.target.className.match("-crop-")){
 
-                var transform = (window.getComputedStyle(cropWindowElement)['transform' || 'webkitTransform' || 'mozTransform'].match(/(\d+)|(-\d+)/g)) || [];
+                var transform = (window.getComputedStyle(cropWindowElement)['transform' || 'webkitTransform' || 'mozTransform'].match(/-?\d+(?:\.\d+)?/g)) || [];
 
                 _this.isHeld         = true;
                 mouseStart['x']      = e.x;
                 mouseStart['y']      = e.y;
+                _translate['scaleX'] = Number(transform[0] || 0);
+                _translate['skewX']  = Number(transform[1] || 0);
+                _translate['skewY']  = Number(transform[2] || 0);
+                _translate['scaleY'] = Number(transform[3] || 0);
                 _translate['x']      = Number(transform[4] || 0);
                 _translate['y']      = Number(transform[5] || 0);
                 _translate['width']  = cropWindowElement.offsetWidth;
@@ -212,7 +220,6 @@
         }
 
         function Handles(){
-
             return [
                 handleObject('handle-top-left'),
                 handleObject('handle-top-center'),
@@ -224,7 +231,6 @@
                 handleObject('handle-left-middle'),
                 handleObject('center-point')
             ];
-
             function handleObject(className){
                 return {
                     "class":className
