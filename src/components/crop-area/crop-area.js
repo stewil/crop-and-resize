@@ -8,6 +8,7 @@
             _settings      = require('../settings/settings.js'),
             _information   = require('../information/information.js'),
             _this          = {},
+            _hasInit       = false,
             _onChangeQueue = [],
             _image         = new Image(),
             _canvasElement,
@@ -16,20 +17,36 @@
             _context;
 
         /*========================================================================
-         PUBLIC
-         ========================================================================*/
+            PUBLIC
+        ========================================================================*/
 
         _this.changeFile = changeFile;
         _this.onChange   = storeOnChange;
 
-        createCanvasElement();
-        bindListeners();
-
         return _this;
 
         /*========================================================================
-         PRIVATE
-         ========================================================================*/
+            PRIVATE
+        ========================================================================*/
+
+        function init(){
+            createCanvasElement();
+            bindListeners();
+            _hasInit = true;
+        }
+
+        function changeFile(file){
+            if(!_hasInit){
+                init();
+            }
+            _utils.fileToBase64(file, function (src) {
+                _information.updateProperty('originalImage', {
+                    src  : src,
+                    file : _utils.base64toBlob(src)
+                });
+                _image.src = src;
+            });
+        }
 
         function bindListeners(){
             _image.onload = onCanvasSrcLoad;
@@ -57,17 +74,9 @@
             }
         }
 
-        function changeFile(file){
-            _utils.fileToBase64(file, function (src) {
-                _information.updateProperty('originalImage', {
-                    src  : src,
-                    file : _utils.base64toBlob(src)
-                });
-                _image.src = src;
-            });
-        }
-
         function onCanvasSrcLoad(e){
+
+            var canvasParams;
 
             _information.updateProperty('originalImage', {
                 width  : this.width,
@@ -88,7 +97,7 @@
             _canvas['width']  = _canvasElement.width;
             _canvas['height'] = _canvasElement.height;
 
-            var canvasParams  = measureContext();
+            canvasParams  = measureContext();
 
             _canvas['widthRatio']   = (canvasParams.dWidth / _canvas['width']);
             _canvas['heightRatio']  = (canvasParams.dHeight / _canvas['height']);
@@ -128,7 +137,6 @@
         function cacheCanvasDimensions(){
             if(_canvasElement && _canvas){
                 var canvasBounding = _canvasElement.getBoundingClientRect();
-
                 _canvas['top']     = canvasBounding.top;
                 _canvas['left']    = canvasBounding.left;
                 _canvas['cWidth']  = _canvasElement.offsetWidth;
