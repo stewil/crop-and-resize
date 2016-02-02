@@ -88,47 +88,41 @@
             _canvasElement.width    = _canvasElement.offsetWidth;
             _canvasElement.height   = _canvasElement.offsetHeight;
 
-            _source           = {};
-            _canvas           = {};
+            _source                 = {};
+            _canvas                 = {};
 
-            _source['width']  = this.width;
-            _source['height'] = this.height;
+            _source['width']        = this.width;
+            _source['height']       = this.height;
 
-            _canvas['width']  = _canvasElement.width;
-            _canvas['height'] = _canvasElement.height;
+            _canvas['width']        = _canvasElement.width;
+            _canvas['height']       = _canvasElement.height;
 
-            canvasParams  = measureContext();
+            canvasParams            = measureContext();
 
             _canvas['widthRatio']   = (canvasParams.dWidth / _canvas['width']);
             _canvas['heightRatio']  = (canvasParams.dHeight / _canvas['height']);
 
             _context.clearRect(0, 0, _canvas.width, _canvas.height);
-            _context.drawImage(_image,
-                canvasParams.sx,
-                canvasParams.sy,
-                canvasParams.sWidth,
-                canvasParams.sHeight,
-                canvasParams.dx,
-                canvasParams.dy,
-                canvasParams.dWidth,
-                canvasParams.dHeight
-            );
+
+            canvasParams.unshift(_image);
+            _context.drawImage.apply(_context, canvasParams);
             cacheCanvasDimensions();
-            notify();
+            notify(canvasParams);
         }
 
         function storeOnChange(fn){
             _onChangeQueue.push(fn);
         }
 
-        function notify(){
+        function notify(canvasParams){
             var totalSubscribers= _onChangeQueue.length;
             while(totalSubscribers--){
                 if(_onChangeQueue[totalSubscribers] && typeof _onChangeQueue[totalSubscribers] === 'function'){
                     _onChangeQueue[totalSubscribers]({
-                        source : _source,
-                        canvas : _canvas,
-                        context: _context
+                        source       : _source,
+                        canvas       : _canvas,
+                        context      : _context,
+                        canvasParams : canvasParams
                     });
                 }
             }
@@ -145,20 +139,22 @@
         }
 
         function measureContext(){
-            var hRatio   =   _canvas.width  / _source.width,
-                vRatio   =   _canvas.height  / _source.height,
-                ratio    =   Math.min( hRatio, vRatio);
-
-            return{
-                sx:      0,
-                sy:      0,
-                sWidth:  _source.width,
-                sHeight: _source.height,
-                dx:      (_canvas.width - _source.width * ratio ) / 2,
-                dy:      (_canvas.height - _source.height * ratio ) / 2,
-                dWidth:  _source.width * ratio,
-                dHeight: _source.height * ratio
-            }
+            var hRatio        =   _canvas.width  / _source.width,
+                vRatio        =   _canvas.height  / _source.height,
+                ratio         =   Math.min( hRatio, vRatio),
+                paramsAsObect = {
+                    sx:      0,
+                    sy:      0,
+                    sWidth:  _source.width,
+                    sHeight: _source.height,
+                    dx:      (_canvas.width - _source.width * ratio ) / 2,
+                    dy:      (_canvas.height - _source.height * ratio ) / 2,
+                    dWidth:  _source.width * ratio,
+                    dHeight: _source.height * ratio
+                };
+            return Object.keys(paramsAsObect).map(function (key) {
+                return paramsAsObect[key]
+            });
         }
     }
 })();
