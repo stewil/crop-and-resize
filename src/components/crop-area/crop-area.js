@@ -99,13 +99,13 @@
 
             canvasParams            = measureContext();
 
-            _canvas['widthRatio']   = (canvasParams.dWidth / _canvas['width']);
-            _canvas['heightRatio']  = (canvasParams.dHeight / _canvas['height']);
+            _canvas['widthRatio']   = (canvasParams.asObject.dWidth / _canvas['width']);
+            _canvas['heightRatio']  = (canvasParams.asObject.dHeight / _canvas['height']);
 
             _context.clearRect(0, 0, _canvas.width, _canvas.height);
 
-            canvasParams.unshift(_image);
-            _context.drawImage.apply(_context, canvasParams);
+            canvasParams.asArray.unshift(_image);
+            _context.drawImage.apply(_context, canvasParams.asArray);
             cacheCanvasDimensions();
             notify(canvasParams);
         }
@@ -139,10 +139,10 @@
         }
 
         function measureContext(){
-            var hRatio        =   _canvas.width  / _source.width,
-                vRatio        =   _canvas.height  / _source.height,
-                ratio         =   Math.min( hRatio, vRatio),
-                paramsAsObect = {
+            var hRatio         =   _canvas.width  / _source.width,
+                vRatio         =   _canvas.height  / _source.height,
+                ratio          =   Math.min( hRatio, vRatio),
+                paramsAsObject = {
                     sx:      0,
                     sy:      0,
                     sWidth:  _source.width,
@@ -152,9 +152,12 @@
                     dWidth:  _source.width * ratio,
                     dHeight: _source.height * ratio
                 };
-            return Object.keys(paramsAsObect).map(function (key) {
-                return paramsAsObect[key]
-            });
+            return {
+                asObject :  paramsAsObject,
+                asArray  :  Object.keys(paramsAsObject).map(function (key) {
+                    return paramsAsObject[key]
+                })
+            }
         }
     }
 })();
