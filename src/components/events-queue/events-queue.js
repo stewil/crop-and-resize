@@ -9,8 +9,9 @@
         /*========================================================================
             PUBLIC
         ========================================================================*/
-        _eventsQueue.subscribe  = subscribe;
-        _eventsQueue.removeAll  = removeAll;
+        _eventsQueue.subscribe     = subscribe;
+        _eventsQueue.removeAll     = removeAll;
+        _eventsQueue.triggerEvent  = triggerEvent;
 
         return _eventsQueue;
 
@@ -30,20 +31,32 @@
             return (knownQueueItem || new EventObject(eventName, element, subscriberFn))['publicEvents'];
         }
 
+        function triggerEvent(eventName, element){
+            var l = _queue.length;
+            while(l--){
+                if(_queue[l].element === element && _queue[l].eventName === eventName){
+                    _queue[l].publicEvents.trigger();
+                    return;
+                }
+            }
+        }
+
         function EventObject(eventName, element, subscriberFn){
 
             var queueObject = {
                 events      : [subscriberFn],
                 element     : element,
                 eventName   : eventName,
-                publicEvents:{
-                    unSubscribe:unSubscribe
-                }
-            };
+                    publicEvents:{
+                        unSubscribe : unSubscribe,
+                        trigger     : trigger
+                    }
+                },
+                customEvent = document.createEvent('Event');
 
-            _queue.push(queueObject);
-
+            customEvent.initEvent(eventName, true, true);
             element.addEventListener(eventName, onEvent);
+            _queue.push(queueObject);
 
             return queueObject;
 
@@ -51,6 +64,10 @@
                 for(var i = 0; i < queueObject.events.length; i++){
                     queueObject.events[i].call(this, e);
                 }
+            }
+
+            function trigger(){
+                element.dispatchEvent(customEvent);
             }
 
             function unSubscribe(){
