@@ -36,36 +36,38 @@
             _subscribers.push(fn);
         }
 
-        function onDrop(evt){
-            if(!_cropWindow.isHeld){
-                evt.preventDefault();
+        function onDrop(e){
+            e.preventDefault();
 
-                var data             = evt.dataTransfer.files,
-                    totalSubscribers = _subscribers.length;
+            var data             = e.dataTransfer.files,
+                totalSubscribers = _subscribers.length;
 
-                if(data[0] instanceof Blob){
-                    while(totalSubscribers--){
-                        if(_subscribers[totalSubscribers] && typeof _subscribers[totalSubscribers] === 'function'){
-                            _subscribers[totalSubscribers](data[0]);
-                        }
+            if(data[0] instanceof Blob){
+                while(totalSubscribers--){
+                    if(_subscribers[totalSubscribers] && typeof _subscribers[totalSubscribers] === 'function'){
+                        _subscribers[totalSubscribers](data[0]);
                     }
                 }
             }
         }
 
-        function onDragOver(evt) {
+        function onDragOver(e) {
             if(!_cropWindow.isHeld){
-                evt.preventDefault();
-                evt.dataTransfer.dropEffect = 'copy';
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'copy';
             }
         }
 
-        function onDragEnter(evt){
-            _settings.dropArea.classList.add(focusClassName);
+        function onDragEnter(e){
+            if(!_cropWindow.isHeld){
+                _settings.dropArea.classList.add(focusClassName);
+            }
         }
 
-        function onDragLeave(evt){
-            _settings.dropArea.classList.remove(focusClassName);
+        function onDragLeave(e){
+            if(!_cropWindow.isHeld){
+                _settings.dropArea.classList.remove(focusClassName);
+            }
         }
 
     }
