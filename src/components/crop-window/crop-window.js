@@ -3,16 +3,17 @@
 
     function CropWindowDependencies(){
 
-        var _eventsQueue      = require('../events-queue/events-queue'),
-            _settings         = require('../settings/settings.js'),
+        var _settings         = require('../settings/settings.js'),
             _preview          = require('../preview/preview.js'),
+            _mouseEvents      = require('../mouse-events/mouse-events.js'),
             _this             = {},
             _hasInit          = false,
             _translate        = {},
-            cropWindowElement = document.createElement('div'),
-            mouseStart        = {},
             _handles          = Handles(),
+            _source,
             _focusElement,
+            _canvasParams,
+            cropWindowElement = document.createElement('div'),
             baseWidth,
             baseHeight,
             canvas,
@@ -31,24 +32,20 @@
         ========================================================================*/
 
         function updateContext(cropData){
-            canvas  = cropData.canvas;
-            context = cropData.context;
-            onCropMove({
-                x:0,
-                y:0
-            }, true);
+            canvas        = cropData.canvas;
+            context       = cropData.context;
+            _source       = cropData.source;
+            _canvasParams = cropData.canvasParams;
+            cropWindowElement.setAttribute('style', '');
         }
 
         function createCropWindow(){
-
             if(!_hasInit){
-
-                _eventsQueue.subscribe('mousemove', window, onCropMove);
-                _eventsQueue.subscribe('mousedown', window, onCropMouseDown);
-                _eventsQueue.subscribe('mouseup',   window, onCropMouseUp);
+                _mouseEvents.onDrag(onCropMove);
+                _mouseEvents.onDown(onCropMouseDown);
+                _mouseEvents.onUp(onCropMouseUp);
 
                 cropWindowElement.className = 'cr-crop-window';
-                cropWindowElement.setAttribute('draggable', 'false');
 
                 for(var i = 0; i < _handles.length; i++){
                     (function(){
@@ -82,22 +79,20 @@
             }
         }
 
-        function onCropMove(e, force){
-
+        function onCropMove(mouseMoveData, force){
             if(_this.isHeld || force){
-
-                var widthOffset     = canvas.cWidth - (canvas.cWidth * canvas.widthRatio),
-                    heightOffset    = canvas.cHeight - (canvas.cHeight * canvas.heightRatio),
-                    maxLeft         = (cropWindowElement.offsetLeft * -1) + (widthOffset / 2),
-                    maxTop          = (cropWindowElement.offsetTop * -1) + (heightOffset / 2),
-                    maxRight        = (cropWindowElement.offsetLeft - (cropWindowElement.clientWidth - baseWidth)) - (widthOffset / 2),
-                    maxBottom       = (cropWindowElement.offsetTop - (cropWindowElement.clientHeight - baseHeight)) - (heightOffset / 2),
-                    canvasWidth     = canvas.cWidth,
-                    canvasHeight    = canvas.cHeight,
-                    newX            = (_translate.x + Number(e.x - mouseStart.x)),
-                    newY            = (_translate.y + Number(e.y - mouseStart.y)),
-                    newWidth        = cropWindowElement.offsetWidth,
-                    newHeight       = cropWindowElement.offsetHeight,
+                var widthOffset  = canvas.cWidth - (canvas.cWidth * canvas.widthRatio),
+                    heightOffset = canvas.cHeight - (canvas.cHeight * canvas.heightRatio),
+                    maxLeft      = (cropWindowElement.offsetLeft * -1) + (widthOffset / 2),
+                    maxTop       = (cropWindowElement.offsetTop * -1) + (heightOffset / 2),
+                    maxRight     = (cropWindowElement.offsetLeft - (cropWindowElement.clientWidth - baseWidth)) - (widthOffset / 2),
+                    maxBottom    = (cropWindowElement.offsetTop - (cropWindowElement.clientHeight - baseHeight)) - (heightOffset / 2),
+                    canvasWidth  = canvas.cWidth,
+                    canvasHeight = canvas.cHeight,
+                    newX         = (_translate.x + mouseMoveData.x),
+                    newY         = (_translate.y + mouseMoveData.y),
+                    newWidth     = cropWindowElement.offsetWidth,
+                    newHeight    = cropWindowElement.offsetHeight,
                     maxHeight,
                     maxWidth;
 
@@ -123,23 +118,23 @@
                     }
                     if(_focusElement.class.match(/right/g)){
                         maxWidth    = (canvasWidth - (cropWindowElement.offsetLeft + _translate.x)) - (widthOffset / 2);
-                        newWidth    = Math.min(_translate.width + (e.x - mouseStart.x), maxWidth);
+                        newWidth    = Math.min(_translate.width + mouseMoveData.x, maxWidth);
                     }
                     if(_focusElement.class.match(/bottom/g)){
                         maxHeight   = (canvasHeight - (cropWindowElement.offsetTop + _translate.y)) - (heightOffset /2);
-                        newHeight   = Math.min((_translate.height + (e.y - mouseStart.y)), maxHeight);
+                        newHeight   = Math.min((_translate.height + mouseMoveData.y), maxHeight);
                     }
                     if(_focusElement.class.match(/top/g)){
                         maxHeight   = (canvasHeight - (canvasHeight - (_translate.height + (cropWindowElement.offsetTop + _translate.y)))) - (heightOffset /2);
                     }
                     if(_focusElement.class.match(/top-left/g)){
-                        newWidth    = Math.min(_translate.width - (e.x - mouseStart.x), maxWidth);
-                        newHeight   = Math.min((_translate.height - (e.y - mouseStart.y)), maxHeight);
+                        newWidth    = Math.min(_translate.width - mouseMoveData.x, maxWidth);
+                        newHeight   = Math.min((_translate.height - mouseMoveData.y), maxHeight);
                     }else if(_focusElement.class.match(/top/g)){
-                        newHeight   = Math.min((_translate.height - (e.y - mouseStart.y)), maxHeight);
+                        newHeight   = Math.min((_translate.height - mouseMoveData.y), maxHeight);
                         newX        = _translate.x;
                     }else if(_focusElement.class.match(/left/g)){
-                        newWidth    = Math.min(_translate.width - (e.x - mouseStart.x), maxWidth);
+                        newWidth    = Math.min(_translate.width - mouseMoveData.x, maxWidth);
                         newY        = _translate.y;
                     }
 
@@ -150,7 +145,6 @@
                             applyTransform(_translate.scaleX, _translate.skewX, _translate.skewY, _translate.scaleY, newX, newY);
                         }
                     }
-
                 }
                 generatePreviewDimensions();
             }
@@ -189,12 +183,10 @@
                 var transform = (window.getComputedStyle(cropWindowElement)['transform' || 'webkitTransform' || 'mozTransform'].match(/-?\d+(?:\.\d+)?/g)) || [];
 
                 _this.isHeld         = true;
-                mouseStart['x']      = e.x;
-                mouseStart['y']      = e.y;
-                _translate['scaleX'] = Number(transform[0] || 0);
+                _translate['scaleX'] = Number(transform[0] || 1);
                 _translate['skewX']  = Number(transform[1] || 0);
                 _translate['skewY']  = Number(transform[2] || 0);
-                _translate['scaleY'] = Number(transform[3] || 0);
+                _translate['scaleY'] = Number(transform[3] || 1);
                 _translate['x']      = Number(transform[4] || 0);
                 _translate['y']      = Number(transform[5] || 0);
                 _translate['width']  = cropWindowElement.offsetWidth;
@@ -215,8 +207,8 @@
         }
 
         function onCropMouseUp(e){
-            _this.isHeld = false;
-            _focusElement   = null;
+            _this.isHeld  = false;
+            _focusElement = null;
         }
 
         function Handles(){
