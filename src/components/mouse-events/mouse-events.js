@@ -46,7 +46,7 @@
             _eventsQueue.subscribe("mousemove", window, onMouseMoveHandler);
             _eventsQueue.subscribe("dragstart", window, onDragStartHandler);
             _eventsQueue.subscribe("dragend",   window, onDragEndHandler);
-            _eventsQueue.subscribe("drag",      window, _throttle(onDragHandler, 100));
+            _eventsQueue.subscribe("drag",      window, _throttle(onDragHandler, 50));
         }
 
         function subscribeToDrag(fn){
@@ -97,7 +97,7 @@
 
         function onDown(e){
             if(!_startEvent){
-                _startEvent = e;
+                _startEvent         = e;
                 notifyDownSubscribers(e);
             }
         }
@@ -110,10 +110,9 @@
         }
 
         function onDragEndHandler(e){
+            _isMoving   = false;
             _isDragging = false;
-            if(!_isMoving){
-                onUp(e);
-            }
+            onUp(e);
         }
 
         function onUp(e){
@@ -140,18 +139,12 @@
         }
 
         function updateMouseMoveData(startData, eventData){
-
-            var newMouseMoveData = {};
-
-            startData = startData || {};
-            eventData = eventData || {};
-
-            newMouseMoveData['x']       = eventData.x - startData.x;
-            newMouseMoveData['y']       = eventData.y - startData.y;
-            newMouseMoveData['clientX'] = eventData.clientX - startData.clientX;
-            newMouseMoveData['clientY'] = eventData.clientY - startData.clientY;
-
-            _mouseMoveData = newMouseMoveData;
+            if(eventData.x !== 0){
+                _mouseMoveData = {
+                    x:eventData.x - startData.x,
+                    y:eventData.y - startData.y
+                }
+            }
         }
     }
 })();
