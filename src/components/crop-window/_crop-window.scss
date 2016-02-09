@@ -27,6 +27,7 @@
         }
         &[class*=middle]{
             top: 50%;
+            margin-top: -($handle-size/2);
         }
         &[class*=bottom]{
             bottom: -1px;
@@ -75,31 +76,34 @@
 
         &.cr-center-point{
             border: none;
+            display:none;
             &::before,
             &::after{
                 content: "";
-                display: none;
                 background-color: $color;
                 position: absolute;
-                border: 1px solid $color;
             }
 
             &::before{
-                height: 100%;
-                left: 50%;
+                height: $crop-window-border-width;
+                width: $handle-size * 2;
+                top:50%;
+                margin-left: -($handle-size / 2);
             }
 
             &::after{
-                width: 100%;
-                top: 50%;
+                height: $handle-size * 2;
+                width: $crop-window-border-width;
+                left: 50%;
+                margin-top: -($handle-size / 2);
             }
 
-            width: 20px;
-            height: 20px;
+            width: $handle-size;
+            height: $handle-size;
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translateY(0) translateX(0);
+            transform: translateX(-50%) translateY(-50%);
         }
     }
 }

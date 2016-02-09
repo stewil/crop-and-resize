@@ -3,39 +3,39 @@
     <meta charset="UTF-8">
     <title>Image Resize & Crop</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="css/main.css"/>
+    <link rel="stylesheet" href="css/crop-resize-0.1.0.css"/>
 </head>
 <body>
     <div class="container">
-        <h1>Crop Resize</h1>
-        <form action="">
-            <div class="row content">
-                <div class="col-xs-12 col-xs-9">
-                    <div class="embed-responsive embed-responsive-16by9" data-cropresize-target data-drag-drop-target>
-
-                    </div>
-                </div>
-                <div class="col-xs-12 col-xs-3">
-                    <div class="preview">
-                        <img src="" alt="" data-cr-preview/>
-                    </div>
-                    <label class="btn btn-primary btn-lg upload-btn">
-                        <input id="file-uploader" type="file"/>
-                    </label>
-                </div>
-
+        <div class="row">
+            <div class="col-xs-12">
+                <h1>Crop Resize JS</h1>
+                <p>Crop Resize JS is a vanilla solution for cropping images in browser. </p>
             </div>
-        </form>
+        </div>
+        <div class="row">
+            <div class="col-xs-9">
+                <div class="embed-responsive embed-responsive-16by9" data-drag-drop-target data-cropresize-target>
+                </div>
+            </div>
+            <div class="col-xs-3">
+                <div class="preview">
+                    <div data-cr-preview></div>
+                </div>
+                <label class="btn btn-primary upload-btn">
+                    <input id="file-uploader" type="file"/>
+                </label>
+            </div>
+        </div>
     </div>
-    <script src="./js/crop-resize.js"></script>
+    <script src="./js/crop-resize-0.1.0.js"></script>
     <script type="application/javascript">
-        var _element    = document.querySelector('#file-uploader'),
-            _cropResize = new CropResize(_element, {
-                target          :   document.querySelector('[data-cropresize-target]'),
-                dragDropTarget  :   document.querySelector('[data-drag-drop-target]'),
-                previewElement  :   document.querySelector('[data-cr-preview]')
+        var cropArea   = document.querySelector('[data-cropresize-target]'),
+            cropResize = CropResize(cropArea, {
+                 fileInput       : document.querySelector('input#file-uploader[type="file"]'),
+                 dropArea        : document.querySelector('[data-drag-drop-target]'),
+                 previewElement  : document.querySelector('[data-cr-preview]')
             });
-
     </script>
 </body>
 </html>

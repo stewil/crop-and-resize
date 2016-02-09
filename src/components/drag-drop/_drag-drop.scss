@@ -1,5 +1,5 @@
 [data-drag-drop-target]{
-  border: 2px dashed rgba(0,0,0,0.4);
+  border: 1px dashed rgba(0,0,0,0.4);
   background-color: rgba(0,0,0,0.1);
   transition: background 250ms ease-in-out;
   &::before{
