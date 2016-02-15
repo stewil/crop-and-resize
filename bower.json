@@ -4,22 +4,19 @@
   "description": "",
   "license": "MIT",
   "main": [
-    "dist/js/*.min.js"
+    "./dist"
   ],
-  "ignore": [],
-  "keywords": [],
-  "authors": [
-    {
-      "name": "Steve Wilcox"
-    }
+  "ignore": [
+    "./src",
+    ".gitignore",
+    ".gitattributes",
+    "gulpfile.config.js",
+    "gulpfile.js",
+    "LICENSE.txt"
   ],
   "dependencies": {},
   "devDependencies": {
     "jasmine": "^2.4.1"
-  },
-  "repository": {
-    "type": "git",
-    "url": ""
   },
   "private": false
 }
