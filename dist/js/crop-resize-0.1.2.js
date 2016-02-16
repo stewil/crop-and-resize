@@ -336,8 +336,6 @@
                             }
                         }
 
-                        //TODO:Center this and save measurements for reset
-
                         cropWindowElement.style.height = baseHeight + "px";
                         cropWindowElement.style.width = baseWidth + "px";
 
