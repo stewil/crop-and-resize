@@ -326,7 +326,6 @@
 
                         baseWidth = cropWindowElement.clientWidth;
                         baseHeight = cropWindowElement.clientHeight;
-                        cropWindowElement.setAttribute('draggable', 'false');
 
                         //We choose to set the ratio to the smallest size it could be at the give ratio.
                         if (_settings.setRatio) {

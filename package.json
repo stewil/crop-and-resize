@@ -1,7 +1,15 @@
 {
     "name": "crop-resize",
-    "version": "0.1.0",
-    "keywords": ["image","image crop", "image resize", "crop", "resize", "javascript","js"],
+    "version": "0.1.1",
+    "keywords": [
+        "image",
+        "image crop",
+        "image resize",
+        "crop",
+        "resize",
+        "javascript",
+        "js"
+    ],
     "devDependencies": {
         "browser-sync": "^2.7.13",
         "gulp": "^3.9.0",
@@ -31,13 +39,15 @@
     "dependencies": {},
     "engines": {},
     "homepage": "",
-    "repository":{
-        "type":"git",
-        "url":"https://github.com/stewil/crop-resize"
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/stewil/crop-resize"
     },
-    "authors": [{
+    "authors": [
+        {
             "name": "Steve Wilcox"
-        }],
+        }
+    ],
     "license": "MIT",
     "private": false,
     "scripts": {}

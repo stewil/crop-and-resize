@@ -17,6 +17,9 @@ var cropArea     = document.querySelector('[data-cropresize-target]'),
     });
 ```
 ##Browser Support
+| IE        | Edge        | Chrome           | Mozilla           | Safari           |
+| ------------- | ------------- | ------------- | ------------- | ------------- |
+|    |    |    |    |    |
 
 ##API
 ###CropResize(fileInput, cropArea, settings):ICropResizeInterface
